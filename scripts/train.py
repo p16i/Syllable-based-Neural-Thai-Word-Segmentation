@@ -12,7 +12,7 @@ import torch
 import torch.optim as optim
 from torch.utils import data
 
-from attacut import dataloaders as dl
+from attacut import dataloaders as dl, output_tags
 from attacut import evaluation, models, utils
 
 def _create_metrics(metrics=["true_pos", "false_pos", "false_neg"]):
@@ -25,9 +25,9 @@ def accumuate_metrics(m1, m2):
     return m1
 
 
-def evaluate_model(logits, labels):
-    labels = labels.cpu().detach().numpy()
-    preds = torch.sigmoid(logits).cpu().detach().numpy() > 0.5
+def evaluate_model(preds, labels):
+    # labels = labels.cpu().detach().numpy()
+    # preds = torch.sigmoid(logits).cpu().detach().numpy() > 0.5
 
     metrics = evaluation.compute_metrics(labels, preds)
 
@@ -67,6 +67,7 @@ def do_iterate(model, generator, device,
 
     for _, batch in enumerate(generator):
         (x, seq), labels, perm_ix = batch
+
         xd, yd, total_batch_preds = generator.dataset.prepare_model_inputs(
             ((x, seq), labels), device
         )
@@ -74,7 +75,8 @@ def do_iterate(model, generator, device,
         if optimizer:
             model.zero_grad()
 
-        logits = model(xd).view(-1)
+        logits = model(xd).reshape(yd.shape[0], -1)
+
         loss = criterion(logits, yd)
 
         if optimizer:
@@ -84,7 +86,9 @@ def do_iterate(model, generator, device,
         total_preds += total_batch_preds
         total_loss += loss.item() * total_batch_preds
 
-        accumuate_metrics(metrics, evaluate_model(logits, yd))
+        preds  = model.output_scheme.decode(logits.cpu().detach().numpy())
+        yd = yd.cpu().detach().numpy()
+        accumuate_metrics(metrics, evaluate_model(preds, yd))
 
     avg_loss = total_loss / total_preds
     pc_values = precision_recall(**metrics)
@@ -122,21 +126,27 @@ def main(
         output_dir="",
         no_workers=4,
         lr_schedule="",
-        prev_model=""
+        prev_model="",
     ):
 
     model_cls = models.get_model(model_name)
+
+    output_scheme = output_tags.get_scheme(
+        utils.parse_model_params(model_params)["oc"]
+    )
 
     dataset_cls = model_cls.dataset()
 
     training_set: dl.SequenceDataset = dataset_cls.load_preprocessed_file_with_suffix(
         data_dir,
-        "training.txt"
+        "training.txt",
+        output_scheme
     )
 
     validation_set: dl.SequenceDataset = dataset_cls.load_preprocessed_file_with_suffix(
         data_dir,
-        "val.txt"
+        "val.txt",
+        output_scheme
     )
 
     # only required
@@ -166,7 +176,7 @@ def main(
 
     model = model.to(device)
 
-    criterion = torch.nn.BCEWithLogitsLoss()
+    criterion = torch.nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 

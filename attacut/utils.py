@@ -1,6 +1,8 @@
 import json
 import os
 import time
+import re
+
 from typing import Callable, Dict, NamedTuple, Union
 
 import yaml
@@ -9,6 +11,8 @@ from attacut import logger
 
 log = logger.get_logger(__name__)
 
+
+int_rx = re.compile("^[0-9]+$")
 
 class ModelParams(NamedTuple):
     name: str
@@ -81,10 +85,13 @@ def parse_model_params(ss: str) -> Dict[str, Union[int, float]]:
     for pg in ss.split("|"):
         k, v = pg.split(":")
 
-        if "." in v:
+        if re.match(int_rx, v):
+            params[k] = int(v)
+        elif "." in v:
             params[k] = float(v)
         else:
-            params[k] = int(v)
+            params[k] = v
+
     return params
 
 

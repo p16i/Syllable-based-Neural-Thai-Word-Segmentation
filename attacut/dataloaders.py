@@ -8,9 +8,9 @@ log = logger.get_logger(__name__)
 
 
 class SequenceDataset(Dataset):
-    def __init__(self, path: str = None):
+    def __init__(self, path: str = None, output_scheme = None):
         if path:
-            self.load_preprocessed_data(path)
+            self.load_preprocessed_data(path, output_scheme)
 
     def __len__(self):
         return self.total_samples
@@ -18,14 +18,14 @@ class SequenceDataset(Dataset):
     def __getitem__(self, index):
         return self.data[index]
 
-    def load_preprocessed_data(self, path):
+    def load_preprocessed_data(self, path, output_scheme):
         self.data = []
 
         suffix = path.split("/")[-1]
         with open(path) as f, \
             utils.Timer("load-seq-data--%s" % suffix) as timer:
             for line in f:
-                self.data.append(self._process_line(line))
+                self.data.append(self._process_line(line, output_scheme))
 
         self.total_samples = len(self.data)
 
@@ -40,12 +40,12 @@ class SequenceDataset(Dataset):
 
         x, seq_lengths = inputs[0]
         x = x.to(device)
-        y = inputs[1].float().to(device).reshape(-1)
+        y = inputs[1].long().to(device).reshape(-1)
 
         return (x, seq_lengths), y, y.shape[0]
 
     @staticmethod
-    def _process_line(line: str):
+    def _process_line(line: str, output_scheme):
         # only use when training
         raise NotImplementedError
 
@@ -55,10 +55,10 @@ class SequenceDataset(Dataset):
         raise NotImplementedError
 
     @classmethod
-    def load_preprocessed_file_with_suffix(cls, dir: str, suffix: str) -> "SequenceDataset":
+    def load_preprocessed_file_with_suffix(cls, dir: str, suffix: str, output_scheme) -> "SequenceDataset":
         path = "%s/%s" % (dir, suffix)
         log.info("Loading preprocessed data from %s" % path)
-        return cls(path=path)
+        return cls(path=path, output_scheme=output_scheme)
 
 
 class CharacterSeqDataset(SequenceDataset):
@@ -158,7 +158,7 @@ class SyllableCharacterSeqDataset(SequenceDataset):
         return list(txt), (torch.from_numpy(features), torch.from_numpy(seq_lengths))
 
     @staticmethod
-    def _process_line(line):
+    def _process_line(line, output_scheme):
         label, ch_indices, sy_indices = line.split("::")
 
         y = np.array(list(label)).astype(int)
@@ -168,6 +168,8 @@ class SyllableCharacterSeqDataset(SequenceDataset):
         x = np.stack((cx, sx), axis=0)
 
         seq = len(y)
+
+        y = output_scheme.encode(y, sx)
 
         return (x, seq), y
 

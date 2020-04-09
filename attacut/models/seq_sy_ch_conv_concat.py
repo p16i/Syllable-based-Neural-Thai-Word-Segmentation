@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
-from attacut import utils, dataloaders, logger
+from attacut import utils, dataloaders, logger, output_tags
 from . import BaseModel, ConvolutionBatchNorm
 
 log = logger.get_logger(__name__)
@@ -12,8 +12,9 @@ log = logger.get_logger(__name__)
 class Model(BaseModel):
     dataset = dataloaders.SyllableCharacterSeqDataset
 
-    def __init__(self, data_config, model_config="embc:16|embs:8|conv:16|l1:16|do:0.0"):
+    def __init__(self, data_config, model_config="embc:16|embs:8|conv:16|l1:16|do:0.0|oc:BI"):
         super(Model, self).__init__()
+
 
         no_chars = data_config['num_char_tokens']
         log.info("no. characters: %d" % no_chars)
@@ -24,6 +25,8 @@ class Model(BaseModel):
         config = utils.parse_model_params(model_config)
         conv_filters = config['conv']
         dropout_rate = config.get("do", 0)
+
+        self.output_scheme = output_tags.get_scheme(config["oc"])
 
         self.ch_embeddings = nn.Embedding(
             no_chars,
@@ -46,7 +49,7 @@ class Model(BaseModel):
         self.conv3 = ConvolutionBatchNorm(emb_dim, conv_filters, 9, dilation=2)
 
         self.linear1 = nn.Linear(conv_filters, config['l1'])
-        self.linear2 = nn.Linear(config['l1'], 1)
+        self.linear2 = nn.Linear(config['l1'], self.output_scheme.num_tags)
 
         self.model_params = model_config
 
