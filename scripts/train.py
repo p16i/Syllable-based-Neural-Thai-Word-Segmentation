@@ -7,6 +7,8 @@ import sys
 
 sys.path.insert(0, os.getcwd())
 
+import numpy as np
+
 import fire
 import torch
 import torch.optim as optim
@@ -75,9 +77,14 @@ def do_iterate(model, generator, device,
         if optimizer:
             model.zero_grad()
 
-        logits = model(xd).reshape(yd.shape[0], -1)
 
-        loss = criterion(logits, yd)
+        logits = model(xd)
+        logits = logits.reshape(-1, logits.shape[-1])
+
+        loss = criterion(
+            logits,
+            yd.reshape(-1)
+        )
 
         if optimizer:
             loss.backward()
@@ -86,11 +93,15 @@ def do_iterate(model, generator, device,
         total_preds += total_batch_preds
         total_loss += loss.item() * total_batch_preds
 
-        preds  = model.output_scheme.decode(logits.cpu().detach().numpy())
-        yd = yd.cpu().detach().numpy()
+        preds  = model.output_scheme.decode_condition(
+            np.argmax(logits.cpu().detach().numpy(), axis=1).reshape(-1)
+        )
+        yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
+
         accumuate_metrics(metrics, evaluate_model(preds, yd))
 
     avg_loss = total_loss / total_preds
+
     pc_values = precision_recall(**metrics)
     print("[%s] loss %f | precision %f | recall %f | f1 %f" % (
         prefix,
@@ -175,6 +186,13 @@ def main(
         )
 
     model = model.to(device)
+
+    # y_train = []
+    # for _, y in training_set.data:
+    #     y_train.extend(y)
+
+    # class_weight = torch.nn.functional.softmax(1/np.bincount(y_train))
+    # print("Class Weigth:", class_weight)
 
     criterion = torch.nn.CrossEntropyLoss()
 

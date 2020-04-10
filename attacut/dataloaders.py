@@ -83,13 +83,17 @@ class CharacterSeqDataset(SequenceDataset):
         return characters, (torch.from_numpy(features), torch.from_numpy(seq_lengths))
 
     @staticmethod
-    def _process_line(line):
-        label, indices = line.split("::")
+    def _process_line(line, output_scheme):
+        label, ch_indices, sy_indices = line.split("::")
 
         y = np.array(list(label)).astype(int)
-        x = np.array(indices.split(" ")).astype(int)
+
+        x = np.array(ch_indices.split(" ")).astype(int)
+        sx = np.array(sy_indices.split(" ")).astype(int)
 
         seq = len(y)
+
+        y = output_scheme.encode(y, sx)
 
         return (x, seq), y
 

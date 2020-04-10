@@ -152,9 +152,12 @@ if __name__ == "__main__":
         open(dest, "w") as fout:
           for batch in dataloader:
               (x, labels, perm_idx), tokens = batch
-              probs = tokenizer.model(x)
+              probs = tokenizer.model(x).cpu().detach().numpy()
 
-              preds = probs.cpu().detach().numpy() > 0.5
+              preds = tokenizer.model.output_scheme.decode_condition(
+                np.argmax(probs, axis=2)
+              )
+
               max_seq = x[1].max().cpu().detach().numpy()
 
               perm_idx = perm_idx.cpu().detach()

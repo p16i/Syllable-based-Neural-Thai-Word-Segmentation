@@ -35,6 +35,10 @@ class SchemeBI:
         """ return {0, 1} sequence """
         return (np.argmax(pred_probs, axis=1) == 1).reshape(-1)
 
+    @staticmethod
+    def decode_condition(ix):
+        return (ix % 2 == 1).astype(int)
+
 """[summary]
 A คือ 1-2, 3-4, 5+
     1, 0 คือ b, i ของ 1-2 พยางค์
@@ -78,9 +82,10 @@ class SchemeA():
 
         return np.array(new_labels).astype(int)
 
+
     @staticmethod
-    def decode(preds):
-        return (np.argmax(preds).reshape(-1) % 2 == 1).astype(int)
+    def decode_condition(ix):
+        return (ix % 2 == 1).astype(int)
 
 class SchemeB():
     """
@@ -105,7 +110,7 @@ class SchemeB():
 
             ub = np.min([num_syllables, 4])*2 - 1
 
-            if 1 <= num_syllables <= 4:
+            if num_syllables >= 1:
                 new_labels.extend([ub]+[ub-1]*(num_chars-1))
             else:
                 raise ValueError("Something went wrong!!")
@@ -113,5 +118,5 @@ class SchemeB():
         return np.array(new_labels).astype(int)
 
     @staticmethod
-    def decode(preds):
-        return (np.argmax(preds).reshape(-1) % 2 == 1).astype(int)
+    def decode_condition(ix):
+        return (ix % 2 == 1).astype(int)

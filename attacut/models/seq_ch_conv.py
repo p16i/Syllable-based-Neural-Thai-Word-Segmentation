@@ -3,14 +3,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
-from attacut import utils, dataloaders
+from attacut import utils, dataloaders, output_tags
 from . import BaseModel, ConvolutionLayer
 
 
 class Model(BaseModel):
     dataset = dataloaders.CharacterSeqDataset
 
-    def __init__(self, data_config, model_config="emb:32|conv:48|l1:16|do:0.1"):
+    def __init__(self, data_config, model_config="emb:32|conv:48|l1:16|do:0.1|oc:BI"):
         super(Model, self).__init__()
 
         no_chars = data_config['num_tokens']
@@ -19,6 +19,8 @@ class Model(BaseModel):
         emb_dim = config['emb']
         conv_filters = config['conv']
         dropout_rate = config.get("do", 0)
+
+        self.output_scheme = output_tags.get_scheme(config["oc"])
 
         self.embeddings = nn.Embedding(
             no_chars,
@@ -33,7 +35,7 @@ class Model(BaseModel):
         self.conv3 = ConvolutionLayer(emb_dim, conv_filters, 9, dilation=2)
 
         self.linear1 = nn.Linear(conv_filters, config['l1'])
-        self.linear2 = nn.Linear(config['l1'], 1)
+        self.linear2 = nn.Linear(config['l1'], self.output_scheme.num_tags)
 
         self.model_params = model_config
 
@@ -53,7 +55,5 @@ class Model(BaseModel):
 
         out = F.relu(self.linear1(out))
         out = self.linear2(out)
-
-        out = out.view(-1)
 
         return out
