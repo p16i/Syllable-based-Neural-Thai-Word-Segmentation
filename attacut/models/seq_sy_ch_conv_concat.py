@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from attacut import utils, dataloaders, logger, output_tags
-from . import BaseModel, ConvolutionBatchNorm
+from . import BaseModel, ConvolutionLayer
 
 log = logger.get_logger(__name__)
 
@@ -44,9 +44,9 @@ class Model(BaseModel):
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
 
-        self.conv1 = ConvolutionBatchNorm(emb_dim, conv_filters, 3)
-        self.conv2 = ConvolutionBatchNorm(emb_dim, conv_filters, 5, dilation=3)
-        self.conv3 = ConvolutionBatchNorm(emb_dim, conv_filters, 9, dilation=2)
+        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 3)
+        self.conv2 = ConvolutionLayer(emb_dim, conv_filters, 5, dilation=3)
+        self.conv3 = ConvolutionLayer(emb_dim, conv_filters, 9, dilation=2)
 
         self.linear1 = nn.Linear(conv_filters, config['l1'])
         self.linear2 = nn.Linear(config['l1'], self.output_scheme.num_tags)
@@ -75,7 +75,5 @@ class Model(BaseModel):
 
         out = F.relu(self.linear1(out))
         out = self.linear2(out)
-
-        out = out.view(-1)
 
         return out
