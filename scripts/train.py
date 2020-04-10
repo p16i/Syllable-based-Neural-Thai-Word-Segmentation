@@ -4,6 +4,7 @@ import glob
 import os
 import shutil
 import sys
+import time
 
 sys.path.insert(0, os.getcwd())
 
@@ -191,8 +192,13 @@ def main(
     # for _, y in training_set.data:
     #     y_train.extend(y)
 
-    # class_weight = torch.nn.functional.softmax(1/np.bincount(y_train))
+    # class_freq = np.bincount(y_train)
+    # class_weight = 1/class_freq
+
+    # normalized_class_weight = class_weight / np.sum( class_weight )
+    # print("Class Freq:", class_freq)
     # print("Class Weigth:", class_weight)
+    # print("Normalied Class Weigth:", normalized_class_weight)
 
     criterion = torch.nn.CrossEntropyLoss()
 
@@ -267,6 +273,7 @@ def main(
 
     for e in range(1, epoch+1):
         print("===EPOCH %d ===" % (e))
+        st_time = time.time()
         if lr_schedule:
             curr_lr = get_lr(optimizer)
             print_floydhub_metrics(dict(lr=curr_lr), step=e, prefix="global")
@@ -290,6 +297,9 @@ def main(
                 criterion=criterion,
             )
 
+        elapsed_time = (time.time() - st_time) / 60.
+        print(f"Time took: {elapsed_time:.4f} mins")
+
         if lr_schedule:
             scheduler.step()
 
@@ -297,6 +307,7 @@ def main(
             model_path = "%s/model-e-%d.pth" % (output_dir, e)
             print("Saving model to %s" % model_path)
             torch.save(model.state_dict(), model_path)
+
 
     model_path = "%s/model.pth" % output_dir
     opt_path = "%s/optimizer.pth" % output_dir
