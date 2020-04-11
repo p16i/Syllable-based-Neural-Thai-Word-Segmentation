@@ -90,9 +90,6 @@ def do_iterate(model, generator, device,
             loss.backward()
             optimizer.step()
 
-        # print("time per batch", (time.time() - st_time), "seconds")
-        # print(logits.shape)
-
         total_preds += total_batch_preds
         total_loss += loss.item() * total_batch_preds
 
