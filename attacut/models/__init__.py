@@ -90,16 +90,22 @@ class BaseModel(nn.Module):
         # seq: seq's length
         if self.crf_model:
 
-            yy = y.reshape(logits.shape[0], -1)
 
             max_len = logits.shape[1]
             mask = (torch.arange(max_len).expand(seq.shape[0], max_len) < seq.unsqueeze(1)).type(torch.uint8)
             mask = torch.t(mask).to(device)
 
             logits_permuted = logits.permute(1, 0, 2)
+            y = y.permute(1, 0)
+
+            # print("logits shape", logits.shape)
+            # print("mask shape", mask.shape)
+            # print("y shape", y.shape)
+            # print("logit-permuted", logits_permuted.shape)
+
 
             lh = self.crf_model(
-                logits_permuted, yy.permute(1, 0), mask=mask, reduction="mean"
+                logits_permuted, y, mask=mask, reduction="mean"
             )
 
             return -lh

@@ -80,11 +80,50 @@ def do_iterate(model, generator, device,
             model.zero_grad()
 
 
-        logits = model(xd)
+        logits, l1_out, decision = model(xd)
 
-        loss = model.crf_forward(
-            logits, yd, seq, device=device,
+        yd = yd.reshape(logits.shape[0], -1)
+
+        syllable_lengths = torch.sum(decision.view(yd.shape[0], yd.shape[1])
+        , dim=1)
+        yd_selected = torch.zeros((yd.shape[0], logits.shape[1])).type(torch.long)
+        for i in range(yd.shape[0]):
+            temp =  decision[i, :, 0].nonzero().view(-1)
+            yd_selected[i, :syllable_lengths[i]] = yd[i, temp]
+
+        # # yd[:, decision.nonzero]
+        # print("yd", yd.shape)
+        # print("yd_selected", yd_selected.shape)
+        # print("seq", seq)
+        # print("logits", logits.shape)
+
+        # raise SystemExit("EEE")
+
+        # print("")
+        # print("seq | syl seq", torch.mean(seq.type(torch.float)), torch.mean(syllable_lengths.type(torch.float)))
+        # print("-----------")
+        # print("char seq", torch.min(seq), torch.max(seq))
+        # print("syllable seq", torch.min(syllable_lengths), torch.max(syllable_lengths))
+        # print("max char - sy seq", torch.max(seq) - torch.max(syllable_lengths))
+        crf_loss = model.crf_forward(
+            logits, yd_selected, syllable_lengths, device=device,
         )
+
+        # print(l1_out.shape)
+        l1_loss = torch.nn.functional.binary_cross_entropy_with_logits(
+            l1_out.reshape(-1), (yd % 2 == 1).type(torch.float).reshape(-1),
+            reduction="sum"
+        )
+
+
+        # print("crf_loss", crf_loss)
+        # print("l1_loss", l1_loss)
+
+        ratio = 1
+        loss = crf_loss + l1_loss
+        # (ratio)*crf_loss + (1-ratio)*l1_loss
+        # loss = (ratio)*crf_loss + (1-ratio)*l1_loss
+        # print("loss", crf_loss, ratio*l1_loss)
 
         if optimizer:
             loss.backward()
@@ -94,9 +133,20 @@ def do_iterate(model, generator, device,
         total_loss += loss.item() * total_batch_preds
 
         if compute_stats:
-            preds = model.crf_decode(logits, seq, device=device)
+
+            preds = decision.cpu().detach().numpy()
+            crf_preds = model.crf_decode(logits, syllable_lengths, device=device)
+            # print(crf_preds)
+            for i in range(yd.shape[0]):
+                temp =  decision[i, :, 0].nonzero().view(-1)
+                # print(temp)
+                # print(syllable_lengths[i])
+                # print(crf_preds[i, :syllable_lengths[i]])
+                preds[i, temp] = np.array(crf_preds[i]).reshape(-1, 1)
+
             yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
-            yd = yd.reshape(logits.shape[0], logits.shape[1]) # batch x max_lengh
+            # yd = yd_selected.cpu().detach().numpy()
+            # yd = yd.reshape(logits.shape[0], logits.shape[1]) # batch x max_lengh
 
             flat_preds, flat_yd = [], []
 
