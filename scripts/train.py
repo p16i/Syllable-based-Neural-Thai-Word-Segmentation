@@ -69,6 +69,7 @@ def do_iterate(model, generator, device,
     metrics = _create_metrics()
 
     for _, batch in enumerate(generator):
+        st_time = time.time()
         (x, seq), labels, perm_ix = batch
 
         xd, yd, total_batch_preds = generator.dataset.prepare_model_inputs(
@@ -81,47 +82,60 @@ def do_iterate(model, generator, device,
 
         logits = model(xd)
 
-        loss, preds = model.decode_output(logits, yd, seq)
+        loss = model.crf_forward(
+            logits, yd, seq, device=device,
+        )
 
         if optimizer:
             loss.backward()
             optimizer.step()
 
+        # print("time per batch", (time.time() - st_time), "seconds")
+        # print(logits.shape)
+
         total_preds += total_batch_preds
         total_loss += loss.item() * total_batch_preds
 
-        yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
-        yd = yd.reshape(logits.shape[0], logits.shape[1]) # batch x max_lengh
+        if compute_stats:
+            preds = model.crf_decode(logits, seq, device=device)
+            yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
+            yd = yd.reshape(logits.shape[0], logits.shape[1]) # batch x max_lengh
 
-        flat_preds, flat_yd = [], []
+            flat_preds, flat_yd = [], []
 
-        for i, v in enumerate(preds):
-            flat_preds.extend(v)
-            flat_yd.extend(yd[i, :len(v)].tolist())
+            for i, v in enumerate(preds):
+                flat_preds.extend(v)
+                flat_yd.extend(yd[i, :len(v)].tolist())
 
-        accumuate_metrics(
-            metrics,
-            evaluate_model(np.array(flat_preds), np.array(flat_yd))
-        )
+            accumuate_metrics(
+                metrics,
+                evaluate_model(np.array(flat_preds), np.array(flat_yd))
+            )
 
     avg_loss = total_loss / total_preds
 
-    pc_values = precision_recall(**metrics)
-    print("[%s] loss %f | precision %f | recall %f | f1 %f" % (
-        prefix,
-        avg_loss,
-        *pc_values
-    ))
-
+    print(f"[{prefix}] loss {avg_loss:.4f}")
     print_floydhub_metrics(
         dict(
             loss=avg_loss,
-            precision=pc_values[0],
-            recall=pc_values[1],
-            f1=pc_values[2]
         ),
         step=step, prefix=prefix
     )
+
+    if compute_stats:
+        pc_values = precision_recall(**metrics)
+        print(
+            f"[{prefix}] precision {pc_values[0]:.4f} | recall {pc_values[1]:.4f} | f1 {pc_values[2]:.4f}"
+        )
+
+        print_floydhub_metrics(
+            dict(
+                precision=pc_values[0],
+                recall=pc_values[1],
+                f1=pc_values[2]
+            ),
+            step=step, prefix=prefix
+        )
 
 
 # taken from https://stackoverflow.com/questions/52660985/pytorch-how-to-get-learning-rate-during-training
@@ -190,6 +204,8 @@ def main(
         )
 
     model = model.to(device)
+
+    # model.crf_model.to(device)
 
     # y_train = []
     # for _, y in training_set.data:
@@ -289,7 +305,7 @@ def main(
                 device=device,
                 optimizer=optimizer,
                 criterion=criterion,
-                compute_stats=e%5==0
+                compute_stats=False,
             )
 
         with utils.Timer("epoch-validation") as timer, \
@@ -299,7 +315,7 @@ def main(
                 step=e,
                 device=device,
                 criterion=criterion,
-                compute_stats=e%5==0
+                compute_stats=True
             )
 
         elapsed_time = (time.time() - st_time) / 60.
