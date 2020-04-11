@@ -85,7 +85,7 @@ class BaseModel(nn.Module):
     def total_trainable_params(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
-    def crf_forward(self, logits, y, seq, device="cpu"):
+    def decode_output(self, logits, y, seq):
         # logits's shape: batch ⨉ seq_length ⨉ num_tags
         # seq: seq's length
         if self.crf_model:
@@ -94,7 +94,8 @@ class BaseModel(nn.Module):
 
             max_len = logits.shape[1]
             mask = (torch.arange(max_len).expand(seq.shape[0], max_len) < seq.unsqueeze(1)).type(torch.uint8)
-            mask = torch.t(mask).to(device)
+
+            mask = torch.t(mask)
 
             logits_permuted = logits.permute(1, 0, 2)
 
@@ -102,18 +103,11 @@ class BaseModel(nn.Module):
                 logits_permuted, yy.permute(1, 0), mask=mask, reduction="mean"
             )
 
-            return -lh
+            decoded_tags = self.crf_model.decode(logits_permuted, mask=mask)
+
+            return -lh, decoded_tags
         else:
             raise NotImplementedError("nooooo")
-    
-    def crf_decode(self, logits, seq, device="cpu"):
-        max_len = logits.shape[1]
-        mask = (torch.arange(max_len).expand(seq.shape[0], max_len) < seq.unsqueeze(1)).type(torch.uint8)
-        mask = torch.t(mask).to(device)
-
-        logits_permuted = logits.permute(1, 0, 2)
-
-        return self.crf_model.decode(logits_permuted, mask=mask)
 
 
 def get_model(model_name) -> BaseModel:
