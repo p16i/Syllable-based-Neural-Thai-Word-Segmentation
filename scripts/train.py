@@ -63,7 +63,7 @@ def copy_files(path, dest):
 
 
 def do_iterate(model, generator, device,
-    optimizer=None, criterion=None, prefix="", step=0, compute_stats=False):
+    optimizer=None, criterion=None, prefix="", step=0):
 
     total_loss, total_preds = 0, 0
     metrics = _create_metrics()
@@ -80,8 +80,12 @@ def do_iterate(model, generator, device,
 
 
         logits = model(xd)
+        logits = logits.reshape(-1, logits.shape[-1])
 
-        loss, preds = model.decode_output(logits, yd, seq)
+        loss = criterion(
+            logits,
+            yd.reshape(-1)
+        )
 
         if optimizer:
             loss.backward()
@@ -90,19 +94,12 @@ def do_iterate(model, generator, device,
         total_preds += total_batch_preds
         total_loss += loss.item() * total_batch_preds
 
-        yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
-        yd = yd.reshape(logits.shape[0], logits.shape[1]) # batch x max_lengh
-
-        flat_preds, flat_yd = [], []
-
-        for i, v in enumerate(preds):
-            flat_preds.extend(v)
-            flat_yd.extend(yd[i, :len(v)].tolist())
-
-        accumuate_metrics(
-            metrics,
-            evaluate_model(np.array(flat_preds), np.array(flat_yd))
+        preds  = model.output_scheme.decode_condition(
+            np.argmax(logits.cpu().detach().numpy(), axis=1).reshape(-1)
         )
+        yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
+
+        accumuate_metrics(metrics, evaluate_model(preds, yd))
 
     avg_loss = total_loss / total_preds
 
@@ -289,7 +286,6 @@ def main(
                 device=device,
                 optimizer=optimizer,
                 criterion=criterion,
-                compute_stats=e%5==0
             )
 
         with utils.Timer("epoch-validation") as timer, \
@@ -299,7 +295,6 @@ def main(
                 step=e,
                 device=device,
                 criterion=criterion,
-                compute_stats=e%5==0
             )
 
         elapsed_time = (time.time() - st_time) / 60.

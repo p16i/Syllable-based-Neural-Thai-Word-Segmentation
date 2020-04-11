@@ -6,15 +6,13 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from attacut import utils, dataloaders, logger, output_tags
 from . import BaseModel, ConvolutionLayer
 
-from torchcrf import CRF
-
 log = logger.get_logger(__name__)
 
 
 class Model(BaseModel):
     dataset = dataloaders.SyllableCharacterSeqDataset
 
-    def __init__(self, data_config, model_config="embc:16|embs:8|conv:16|l1:16|do:0.0|oc:BI|crf:1"):
+    def __init__(self, data_config, model_config="embc:16|embs:8|conv:16|l1:16|do:0.0|oc:BI"):
         super(Model, self).__init__()
 
 
@@ -41,9 +39,6 @@ class Model(BaseModel):
             config['embs'],
             padding_idx=0
         )
-
-        if config["crf"]:
-            self.crf_model = CRF(self.output_scheme.num_tags)
 
         emb_dim = config['embc'] + config['embs']
 
