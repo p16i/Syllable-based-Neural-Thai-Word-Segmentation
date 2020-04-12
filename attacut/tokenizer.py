@@ -25,10 +25,13 @@ class Tokenizer:
         model_cls: models.BaseModel = models.get_model(model_name)
 
         # instantiate dataset
-        dataset: dataloaders.SequenceDataset = model_cls.dataset()
+        dataset: dataloaders.SequenceDataset = model_cls.dataset(
+            # dir=model_path,
+            dict_dir=model_path
+        )
 
         # load necessary dicts into memory
-        data_config: Dict = dataset.setup_featurizer(model_path)
+        data_config: Dict = dataset.setup_featurizer()
 
         # instantiate model
         self.model = model_cls.load(

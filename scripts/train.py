@@ -147,7 +147,7 @@ def main(
         utils.parse_model_params(model_params)["oc"]
     )
 
-    dataset_cls = model_cls.dataset()
+    dataset_cls = model_cls.dataset
 
     training_set: dl.SequenceDataset = dataset_cls.load_preprocessed_file_with_suffix(
         data_dir,
@@ -162,7 +162,7 @@ def main(
     )
 
     # only required
-    data_config = training_set.setup_featurizer("%s/dictionary" % data_dir)
+    data_config = training_set.setup_featurizer()
 
     device = models.get_device()
     print("Using device: %s" % device)

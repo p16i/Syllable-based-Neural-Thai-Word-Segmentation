@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
-from attacut import utils, dataloaders, logger, output_tags
+from attacut import utils, dataloaders, logger, output_tags, char_type
 from . import BaseModel, ConvolutionLayer
 
 log = logger.get_logger(__name__)
@@ -12,7 +12,7 @@ log = logger.get_logger(__name__)
 class Model(BaseModel):
     dataset = dataloaders.SyllableCharacterSeqDataset
 
-    def __init__(self, data_config, model_config="embc:16|embs:8|conv:16|l1:16|do:0.0|oc:BI"):
+    def __init__(self, data_config, model_config="embc:16|embt:8|embs:8|conv:16|l1:16|do:0.0|oc:BI"):
         super(Model, self).__init__()
 
 
@@ -28,19 +28,24 @@ class Model(BaseModel):
 
         self.output_scheme = output_tags.get_scheme(config["oc"])
 
+        self.ch_type_embeddings = nn.Embedding(
+            char_type.get_total_char_types(),
+            config["embt"],
+        )
+
         self.ch_embeddings = nn.Embedding(
             no_chars,
-            config['embc'],
+            config["embc"],
             padding_idx=0
         )
 
         self.sy_embeddings = nn.Embedding(
             no_syllables,
-            config['embs'],
+            config["embs"],
             padding_idx=0
         )
 
-        emb_dim = config['embc'] + config['embs']
+        emb_dim = config["embc"] + config["embs"] + config["embt"]
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
 
@@ -56,12 +61,13 @@ class Model(BaseModel):
     def forward(self, inputs):
         x, seq_lengths = inputs
 
-        x_char, x_syllable = x[:, 0, :], x[:, 1, :]
+        x_char, x_type, x_syllable = x[:, 0, :], x[:, 1, :], x[:, 2, :]
 
         ch_embedding = self.ch_embeddings(x_char)
+        ch_type_embedding = self.ch_type_embeddings(x_type)
         sy_embedding = self.sy_embeddings(x_syllable)
 
-        embedding = torch.cat((ch_embedding, sy_embedding), dim=2)
+        embedding = torch.cat((ch_embedding, ch_type_embedding, sy_embedding), dim=2)
 
         embedding = embedding.permute(0, 2, 1)
 
