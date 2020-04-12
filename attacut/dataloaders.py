@@ -89,7 +89,6 @@ class CharacterSeqDataset(SequenceDataset):
 
         ch_type_ix = char_type.get_char_type_ix(characters)
 
-
         features = np.stack((ch_ix, ch_type_ix), axis=0) \
             .reshape((1, 2, -1)) \
             .astype(np.int64)
@@ -176,21 +175,20 @@ class SyllableCharacterSeqDataset(SequenceDataset):
         for syllable in syllables:
             six = preprocessing.syllable2ix(sy2ix, syllable)
 
+            characters = list(syllable)
             chs = list(
                 map(
                     lambda ch: preprocessing.character2ix(ch2ix, ch),
-                    list(syllable)
+                    characters,
                 )
             )
             ch_ix.extend(chs)
-            ch_type_ix.extend(char_type.get_char_type_ix(chs))
+            ch_type_ix.extend(char_type.get_char_type_ix(characters))
             syllable_ix.extend([six]*len(chs))
 
         features = np.stack((ch_ix, ch_type_ix, syllable_ix), axis=0) \
             .reshape((1, 3, -1)) \
             .astype(np.int64)
-
-        # print(features.shape)
 
         seq_lengths = np.array([features.shape[-1]], dtype=np.int64)
 

@@ -44,13 +44,15 @@ for k, v in CHAR_TYPE.items():
     for c in list(k):
         CHAR_TO_CHARTYPE_IX[c] = CHAR_TYPE_IX[v]
 
-def get_char_type_ix(ch_seq: List[str]) -> List[int]:
-    # print(">>", ch_seq)
+# manual adding token from our dict
+CHAR_TO_CHARTYPE_IX["<PAD>"] = CHAR_TYPE_IX["p"]
+CHAR_TO_CHARTYPE_IX["<PUNC>"] = CHAR_TYPE_IX["q"]
+CHAR_TO_CHARTYPE_IX["<UNK>"] = CHAR_TYPE_IX["o"]
 
+def get_char_type_ix(ch_seq: List[str]) -> List[int]:
     ix = []
 
     for c in ch_seq:
-        # print("c", c)
         ix.append(
             CHAR_TO_CHARTYPE_IX.get(c, CHAR_TYPE_IX["o"])
         )
