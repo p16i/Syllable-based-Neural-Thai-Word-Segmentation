@@ -1,33 +1,28 @@
 from collections import namedtuple
 
+import torch
+
 import numpy as np
 
 from nptyping import Array
 
 EvaluationMetrics = namedtuple(
     "EvaluationMetrics",
-    ["tp", "fp", "fn", "precision", "recall", "f1"]
+    ["tp", "fp", "fn"]
 )
 
 def compute_metrics(
-    labels: Array[np.int32],
-    preds: Array[np.int32]
+    labels: Array[torch.int],
+    preds: Array[torch.int]
 ) -> EvaluationMetrics:
 
     # manually implemented due to keep no. of dependencies minimal
-    tp = np.sum(preds * labels)
-    fp = np.sum(preds * (1-labels))
-    fn = np.sum((1-preds) * labels)
-
-    precision = tp / (tp+fp)
-    recall = tp / (tp+fn)
-    f1 = 2 * precision * recall / (precision + recall)
+    tp = torch.sum(preds * labels)
+    fp = torch.sum(preds * (1-labels))
+    fn = torch.sum((1-preds) * labels)
 
     return EvaluationMetrics(
-        tp=tp,
-        fp=fp,
-        fn=fn,
-        precision=precision,
-        recall=recall,
-        f1=f1
+        tp=tp.cpu(),
+        fp=fp.cpu(),
+        fn=fn.cpu(),
     )

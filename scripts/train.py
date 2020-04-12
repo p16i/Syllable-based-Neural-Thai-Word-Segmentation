@@ -28,9 +28,14 @@ def accumuate_metrics(m1, m2):
     return m1
 
 
+def _safe_divide(nom, dom):
+
+    if dom == 0:
+        return 0
+    else:
+        return nom / dom
+
 def evaluate_model(preds, labels):
-    # labels = labels.cpu().detach().numpy()
-    # preds = torch.sigmoid(logits).cpu().detach().numpy() > 0.5
 
     metrics = evaluation.compute_metrics(labels, preds)
 
@@ -42,9 +47,12 @@ def evaluate_model(preds, labels):
 
 
 def precision_recall(true_pos, false_pos, false_neg):
-    precision = true_pos/(true_pos+false_pos)
-    recall = true_pos/(true_pos+false_neg)
-    f1 = 2*precision*recall / (precision+recall)
+    tp, fp, fn = true_pos, false_pos, false_neg
+
+    precision = _safe_divide(tp, tp+fp)
+    recall = _safe_divide(tp, tp+fn)
+
+    f1 = _safe_divide(2*precision*recall, precision + recall)
 
     return precision, recall, f1
 
@@ -98,6 +106,9 @@ def do_iterate(model, generator, device,
             np.argmax(logits.cpu().detach().numpy(), axis=1).reshape(-1)
         )
         yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
+
+        preds = torch.from_numpy(preds).to(device)
+        yd = torch.from_numpy(yd).to(device)
 
         accumuate_metrics(metrics, evaluate_model(preds, yd))
 
