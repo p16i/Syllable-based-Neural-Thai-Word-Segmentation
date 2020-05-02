@@ -3,6 +3,7 @@ import re
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 import attacut
 from attacut import logger
@@ -55,7 +56,7 @@ class ConvolutionLayer(nn.Module):
         )
 
     def forward(self, x):
-        return self.conv(x)
+        return F.relu(self.conv(x))
 
 class BaseModel(nn.Module):
     dataset = None

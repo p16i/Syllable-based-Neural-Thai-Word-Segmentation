@@ -134,8 +134,6 @@ class CharacterSeqDataset(SequenceDataset):
         for i, s in enumerate(batch):
             b_feature = s[0][0]
             total_features = b_feature.shape[1]
-            # print(b_feature.shape)
-            # print(total_features)
             features[i, :, :total_features] = b_feature
             labels[i, :total_features] = s[1]
 
@@ -204,9 +202,6 @@ class SyllableCharacterSeqDataset(SequenceDataset):
         cx_ch = list(map(lambda ix: self.ch_ix_2_ch[int(ix)], cx_ix))
         cx = np.array(cx_ix).astype(int)
         ctx = np.array(char_type.get_char_type_ix(cx_ch)).astype(int)
-        # print(ch_indices)
-        # print(cx_ch)
-        # print(ctx.shape)
         sx = np.array(sy_indices.split(" ")).astype(int)
         x = np.stack((cx, ctx, sx), axis=0)
 
@@ -230,6 +225,92 @@ class SyllableCharacterSeqDataset(SequenceDataset):
             b_feature = s[0][0]
             total_features = b_feature.shape[1]
             features[i, :, :total_features] = b_feature
+            labels[i, :total_features] = s[1]
+
+        seq_lengths = torch.from_numpy(seq_lengths)
+        seq_lengths, perm_idx = seq_lengths.sort(0, descending=True)
+
+        inputs = (torch.from_numpy(features)[perm_idx], seq_lengths)
+
+        labels = torch.from_numpy(labels)[perm_idx]
+
+        return inputs, labels, perm_idx
+
+class SyllableSeqDataset(SequenceDataset):
+    def __init__(self, dir:str = None, dict_dir: str = None, path: str = None, output_scheme = None):
+
+        self.sy_dict = utils.load_dict(f"{dict_dir}/syllables.json")
+
+        super(SyllableSeqDataset, self).__init__(dir, dict_dir, path, output_scheme)
+
+    def setup_featurizer(self):
+        return dict(
+            num_tokens=len(self.sy_dict)
+        )
+
+    def make_feature(self, txt):
+        syllables = preprocessing.syllable_tokenize(txt)
+
+        sy2ix = self.sy_dict
+
+        syllable_ix = []
+
+        for syllable in syllables:
+            six = preprocessing.syllable2ix(sy2ix, syllable)
+            syllable_ix.append(six)
+
+        # dims: (len,)
+        features = np.array(syllable_ix)\
+            .astype(np.int64)\
+            .reshape(-1)
+
+        seq_lengths = np.array([features.shape[-1]], dtype=np.int64)
+        
+        features = torch.from_numpy(features)
+
+        return syllables, (features, torch.from_numpy(seq_lengths))
+
+    # @staticmethod
+    def _process_line(self, line, output_scheme):
+        label, _, sy_indices = line.split("::")
+
+        y = np.array(list(label)).astype(int)
+
+        x = np.array(sy_indices.split(" "))
+
+        # here we have sy_ix per character location
+        y = output_scheme.encode(y, x)
+
+        _sy = x[0]
+
+        syllables, ys = [], []
+
+        for _x, _y in zip(x, y):
+            if _x != _sy:
+                syllables.append(_x)
+                ys.append(_y)
+                _sy = _x
+
+        # dims: (len,)
+        x = np.array(syllables).astype(int)
+
+        return (x, len(ys)), ys
+
+    @staticmethod
+    def collate_fn(batch):
+        total_samples = len(batch)
+
+        seq_lengths = np.array(list(map(lambda x: x[0][1], batch)))
+        max_length = np.max(seq_lengths)
+
+        features = np.zeros((total_samples, max_length), dtype=np.int64)
+        labels = np.zeros((total_samples, max_length), dtype=np.int64)
+
+        for i, s in enumerate(batch):
+            # dims: (len, )
+            b_feature = s[0][0].reshape(-1)
+            total_features = b_feature.shape[0]
+            features[i, :total_features] = b_feature
             labels[i, :total_features] = s[1]
 
         seq_lengths = torch.from_numpy(seq_lengths)
