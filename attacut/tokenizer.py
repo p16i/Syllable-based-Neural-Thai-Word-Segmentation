@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+import numpy as np
 import torch
 
 from attacut import (artifacts, dataloaders, logger, models, preprocessing,
@@ -56,9 +57,11 @@ class Tokenizer:
         )
 
         x, _, _ = self.dataset.prepare_model_inputs(inputs, device=device)
-        probs = torch.sigmoid(self.model(x))
+        logits = torch.sigmoid(self.model(x)).detach().numpy()
 
-        preds = probs.cpu().detach().numpy() > pred_threshold
+        preds = self.model.output_scheme.decode_condition(
+            np.argmax(logits, axis=2)
+        ).reshape(-1)
 
         words = preprocessing.find_words_from_preds(tokens, preds)
 
