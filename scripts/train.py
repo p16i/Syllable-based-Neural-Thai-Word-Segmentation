@@ -188,18 +188,6 @@ def main(
 
     model = model.to(device)
 
-    # y_train = []
-    # for _, y in training_set.data:
-    #     y_train.extend(y)
-
-    # class_freq = np.bincount(y_train)
-    # class_weight = 1/class_freq
-
-    # normalized_class_weight = class_weight / np.sum( class_weight )
-    # print("Class Freq:", class_freq)
-    # print("Class Weigth:", class_weight)
-    # print("Normalied Class Weigth:", normalized_class_weight)
-
     criterion = torch.nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
