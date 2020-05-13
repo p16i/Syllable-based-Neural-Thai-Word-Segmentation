@@ -1,10 +1,11 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from attacut import utils, dataloaders, logger, output_tags, char_type
-from . import BaseModel, ConvolutionLayer
+from . import BaseModel, ConvolutionLayer, prepare_embedding
 
 log = logger.get_logger(__name__)
 
@@ -39,17 +40,14 @@ class Model(BaseModel):
             padding_idx=0
         )
 
-        self.sy_embeddings = nn.Embedding(
-            no_syllables,
-            config["embs"],
-            padding_idx=0
-        )
-
-        emb_dim = config["embc"] + config["embs"] + config["embt"]
+        self.sy_embeddings = prepare_embedding(data_config, config)
+        emb_dim = config["embc"] + config["embt"] + self.sy_embeddings.weight.shape[1]
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
 
-        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 5)
+        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 3)
+        self.conv2 = ConvolutionLayer(conv_filters, conv_filters, 3, dilation=1)
+        self.conv3 = ConvolutionLayer(conv_filters, conv_filters, 3, dilation=4)
 
         self.linear1 = nn.Linear(conv_filters, config['l1'])
         self.linear2 = nn.Linear(config['l1'], self.output_scheme.num_tags)
@@ -69,10 +67,11 @@ class Model(BaseModel):
 
         embedding = embedding.permute(0, 2, 1)
 
-        conv1 = self.dropout(self.conv1(embedding).permute(0, 2, 1))
+        conv1 = self.dropout(self.conv1(embedding))
+        conv2 = self.dropout(self.conv2(conv1))
+        out = self.dropout(self.conv3(conv2))
 
-        out = conv1
-
+        out = out.permute(0, 2, 1)
         out = F.relu(self.linear1(out))
         out = self.linear2(out)
 

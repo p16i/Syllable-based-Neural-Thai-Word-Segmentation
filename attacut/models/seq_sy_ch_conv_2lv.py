@@ -49,7 +49,8 @@ class Model(BaseModel):
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
 
-        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 5)
+        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 3)
+        self.conv2 = ConvolutionLayer(conv_filters, conv_filters, 3, dilation=1)
 
         self.linear1 = nn.Linear(conv_filters, config['l1'])
         self.linear2 = nn.Linear(config['l1'], self.output_scheme.num_tags)
@@ -69,10 +70,10 @@ class Model(BaseModel):
 
         embedding = embedding.permute(0, 2, 1)
 
-        conv1 = self.dropout(self.conv1(embedding).permute(0, 2, 1))
+        conv1 = self.dropout(self.conv1(embedding))
+        out = conv2 = self.dropout(self.conv2(conv1))
 
-        out = conv1
-
+        out = out.permute(0, 2, 1)
         out = F.relu(self.linear1(out))
         out = self.linear2(out)
 

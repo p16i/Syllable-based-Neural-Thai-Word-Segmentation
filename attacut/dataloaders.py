@@ -152,6 +152,7 @@ class SyllableCharacterSeqDataset(SequenceDataset):
 
         self.ch_dict = utils.load_dict(f"{dict_dir}/characters.json")
         self.sy_dict = utils.load_dict(f"{dict_dir}/syllables.json")
+        self.dict_dir = dict_dir
 
         self.ch_ix_2_ch = dict(zip(self.ch_dict.values(), self.ch_dict.keys()))
 
@@ -160,7 +161,8 @@ class SyllableCharacterSeqDataset(SequenceDataset):
     def setup_featurizer(self):
         return dict(
             num_char_tokens=len(self.ch_dict),
-            num_tokens=len(self.sy_dict)
+            num_tokens=len(self.sy_dict),
+            dict_dir=self.dict_dir
         )
 
     def make_feature(self, txt):

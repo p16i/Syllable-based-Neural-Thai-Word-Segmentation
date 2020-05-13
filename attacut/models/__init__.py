@@ -1,3 +1,4 @@
+import numpy as np
 import importlib
 import re
 
@@ -89,3 +90,33 @@ def get_model(model_name) -> BaseModel:
 
     model_mod = importlib.import_module(module_path)
     return model_mod.Model
+
+def prepare_embedding(data_config, model_config):
+    if type(model_config["embs"]) == str:
+        dict_dir = data_config["dict_dir"]
+
+        name = model_config["embs"]
+        sy_embeddings = np.load(f"{dict_dir}/sy-emb-{name}.npy")
+
+        ix = np.argwhere(np.sum(sy_embeddings, axis=1) == 0).reshape(-1)
+
+        np.random.seed(71)
+        sy_embeddings[ix, :] = np.random.normal(
+            loc=0,
+            scale=1,
+            size=(ix.shape[0], sy_embeddings.shape[1])
+        )
+
+        assert data_config['num_tokens'] == sy_embeddings.shape[0]
+
+        return nn.Embedding.from_pretrained(
+            torch.from_numpy(sy_embeddings).float(),
+            freeze=False,
+            padding_idx=0
+        )
+    else:
+        return nn.Embedding(
+            no_syllables,
+            config["embs"],
+            padding_idx=0
+        )

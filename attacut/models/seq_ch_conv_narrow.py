@@ -36,9 +36,7 @@ class Model(BaseModel):
 
         emb_dim = config["embc"] + config["embt"]
 
-        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 3)
-        self.conv2 = ConvolutionLayer(emb_dim, conv_filters, 5)
-        self.conv3 = ConvolutionLayer(emb_dim, conv_filters, 9)
+        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 5)
 
         self.linear1 = nn.Linear(conv_filters, config['l1'])
         self.linear2 = nn.Linear(config['l1'], self.output_scheme.num_tags)
@@ -58,12 +56,8 @@ class Model(BaseModel):
         embedding = embedding.permute(0, 2, 1)
 
         conv1 = self.conv1(embedding).permute(0, 2, 1)
-        conv2 = self.conv2(embedding).permute(0, 2, 1)
-        conv3 = self.conv3(embedding).permute(0, 2, 1)
 
-        out = torch.stack((conv1, conv2, conv3), 3)
-
-        out, _ = torch.max(out, 3)
+        out = conv1
         out = self.dropout(out)
 
         out = F.relu(self.linear1(out))
