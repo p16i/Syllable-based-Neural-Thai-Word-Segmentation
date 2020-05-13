@@ -251,6 +251,16 @@ def main(
         output_dir
     )
 
+    config = utils.parse_model_params(model_params)
+    if type(config["embs"]) == str:
+        emb = config["embs"]
+        copy_files(
+            "%s/dictionary/sy-emb-{emb}.npy" % data_dir,
+            output_dir
+        )
+
+
+
     utils.save_training_params(
         output_dir,
         utils.ModelParams(
