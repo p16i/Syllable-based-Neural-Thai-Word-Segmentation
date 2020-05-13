@@ -1,2 +1,2 @@
 machine: cpu
-env: pytorch-1.0
+env: pytorch-1.4
