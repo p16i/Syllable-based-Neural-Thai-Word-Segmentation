@@ -116,7 +116,7 @@ def prepare_embedding(data_config, model_config):
         )
     else:
         return nn.Embedding(
-            no_syllables,
-            config["embs"],
+            data_config['num_tokens'],
+            model_config["embs"],
             padding_idx=0
         )
