@@ -285,7 +285,7 @@ def main(
         elapsed_time = (time.time() - st_time) / 60.
         print(f"Time took: {elapsed_time:.4f} mins")
 
-        scheduler.step(0.01)
+        scheduler.step(val_loss)
 
         if checkpoint and e % checkpoint == 0:
             model_path = "%s/model-e-%d.pth" % (output_dir, e)
