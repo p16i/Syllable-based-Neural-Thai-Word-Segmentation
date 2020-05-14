@@ -248,7 +248,7 @@ def main(
         ("model", model_name, model.total_trainable_params())
     )
 
-    utils.maybe_create_dir(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
 
     copy_files(
         "%s/dictionary/*.json" % data_dir,
