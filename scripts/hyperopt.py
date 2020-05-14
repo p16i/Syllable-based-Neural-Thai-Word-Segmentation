@@ -16,6 +16,9 @@ from scipy.stats import distributions as dist
 import yaml
 import time
 
+from datetime import datetime
+
+
 def merge_arch_params(p):
     arch_params = []
 
@@ -45,6 +48,10 @@ if __name__ == '__main__':
                 param_grid[k] = v
 
     _, config_name = os.path.split(config)
+
+    dt = datetime.today().strftime("%Y-%m-%d--%H-%M")
+
+    config_name = f"{config_name}-{dt}"
 
     group_output_dir = f"./artifacts/{config_name.split('.')[0]}"
     max_epoch = int(arguments["--max-epoch"])
