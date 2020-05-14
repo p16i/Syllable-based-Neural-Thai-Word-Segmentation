@@ -17,6 +17,8 @@ int_rx = re.compile("^[0-9]+$")
 class ModelParams(NamedTuple):
     name: str
     params: str
+    training_took: float
+    num_trainable_params: int
 
 
 class Timer:

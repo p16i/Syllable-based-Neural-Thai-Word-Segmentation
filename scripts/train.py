@@ -255,14 +255,6 @@ def main(
         output_dir
     )
 
-    utils.save_training_params(
-        output_dir,
-        utils.ModelParams(
-            name=model_name,
-            params=model.model_params
-        )
-    )
-
     start_training_time = time.time()
     for e in range(1, epoch+1):
         print("===EPOCH %d ===" % (e))
@@ -320,6 +312,16 @@ def main(
             f"{data_dir}/dictionary/sy-emb-{emb}.npy",
             output_dir
         )
+
+    utils.save_training_params(
+        output_dir,
+        utils.ModelParams(
+            name=model_name,
+            params=model.model_params,
+            training_took=training_took,
+            num_trainable_params=model.total_trainable_params()
+        )
+    )
 
 if __name__ == "__main__":
     fire.Fire(main)

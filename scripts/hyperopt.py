@@ -1,4 +1,4 @@
-"""Usage: hyperopt --config=<config> --output-dir=<output> [--dry-run] --N=<N> [--max-epoch=<max-epoch>]
+"""Usage: hyperopt --config=<config> [--dry-run] --N=<N> [--max-epoch=<max-epoch>]
 
 Options:
   -h --help     Show this screen.
@@ -13,6 +13,8 @@ import os
 
 from sklearn.model_selection import ParameterSampler
 from scipy.stats import distributions as dist
+import yaml
+import time
 
 def merge_arch_params(p):
     arch_params = []
@@ -31,35 +33,30 @@ def merge_arch_params(p):
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Hyperopt')
     print(arguments)
-    # todo: read config
 
+    config = arguments["--config"]
+    param_grid = dict()
+
+    with open(config, "r") as fh:
+        for k, v in yaml.full_load(fh).items():
+            if type(v) == str:
+                param_grid[k] = eval("dist." + v)
+            else:
+                param_grid[k] = v
+
+    _, config_name = os.path.split(config)
+
+    group_output_dir = f"./artifacts/{config_name.split('.')[0]}"
     max_epoch = int(arguments["--max-epoch"])
-    # epochs
 
-    param_grid = dict(
-        model_name=["seq_sy_ch_conv_3lv"],
-        batch_size=[32],
-        lr=dist.loguniform(1e-6, 1e-3),
-        weight_decay=dist.loguniform(1e-6, 1e-3),
-        arch_oc=["BI"],
-        arch_embc=[32],
-        arch_embt=[32],
-        arch_embs=[64],
-        arch_conv=dist.randint(64, 512),
-        arch_l1=dist.randint(16, 48),
-        arch_do=dist.uniform(0, 0.5)
-    )
-
-    num_params = int(arguments["--N"])
+    n_iters = int(arguments["--N"])
 
     param_list = list(
-        ParameterSampler(param_grid, n_iter=num_params)
+        ParameterSampler(param_grid, n_iter=n_iters)
     )
 
-    os.makedirs(arguments["--output-dir"], exist_ok=True)
-
     cmd_template = """
-sbatch jobscript.sh ./scripts/train.py --model-name {model_name} \
+sbatch --job-name {job_name} --output "./logs/{job_name}.out" jobscript.sh ./scripts/train.py --model-name {model_name} \
     --data-dir ./data/best-big \
     --epoch {max_epoch} \
     --output-dir="{output_dir}" \
@@ -68,16 +65,22 @@ sbatch jobscript.sh ./scripts/train.py --model-name {model_name} \
     --model-params="{arch}"
     """
 
+    print("------------------------")
+
     for i, p in enumerate(param_list):
-        output_dir = "%s/${SLURM_JOB_ID}" % arguments["--output-dir"]
+        job_name = f"{config_name}.{n_iters}.{i}.log"
+        output_dir = f"{group_output_dir}/run-{i}"
         p = merge_arch_params(p)
         cmd = cmd_template.format(
             **p,
             max_epoch=max_epoch,
-            output_dir=output_dir
+            output_dir=output_dir,
+            job_name=job_name
         ).strip()
 
         if arguments["--dry-run"]:
             print(cmd)
         else:
-            print("Executte")
+            os.system(cmd)
+            if i+1 % 10 == 0:
+                time.sleep(5)
