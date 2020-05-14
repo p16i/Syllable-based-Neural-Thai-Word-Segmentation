@@ -29,9 +29,6 @@ def accumuate_metrics(m1, m2):
 
 
 def evaluate_model(preds, labels):
-    # labels = labels.cpu().detach().numpy()
-    # preds = torch.sigmoid(logits).cpu().detach().numpy() > 0.5
-
     metrics = evaluation.compute_metrics(labels, preds)
 
     return {
@@ -42,8 +39,12 @@ def evaluate_model(preds, labels):
 
 
 def precision_recall(true_pos, false_pos, false_neg):
-    precision = true_pos/(true_pos+false_pos)
-    recall = true_pos/(true_pos+false_neg)
+    dominator = true_pos + false_pos
+    precision = true_pos/dominator if dominator > 0 else 0
+
+    dominator = true_pos + false_neg
+    recall = true_pos/(true_pos+false_neg) if dominator > 0 else 0
+
     f1 = 2*precision*recall / (precision+recall)
 
     return precision, recall, f1
@@ -57,6 +58,7 @@ def print_floydhub_metrics(metrics, step=0, prefix=""):
 
 def copy_files(path, dest):
     utils.maybe_create_dir(dest)
+
     for f in glob.glob(path):
         filename = f.split("/")[-1]
         shutil.copy(f, "%s/%s" % (dest, filename), follow_symlinks=True)
@@ -101,7 +103,7 @@ def do_iterate(model, generator, device,
 
         accumuate_metrics(metrics, evaluate_model(preds, yd))
 
-    avg_loss = total_loss / total_preds
+    avg_loss = total_loss / total_preds if total_preds > 0 else 0
 
     pc_values = precision_recall(**metrics)
     print("[%s] loss %f | precision %f | recall %f | f1 %f" % (
@@ -251,16 +253,6 @@ def main(
         output_dir
     )
 
-    config = utils.parse_model_params(model_params)
-    if type(config["embs"]) == str:
-        emb = config["embs"]
-        copy_files(
-            "%s/dictionary/sy-emb-{emb}.npy" % data_dir,
-            output_dir
-        )
-
-
-
     utils.save_training_params(
         output_dir,
         utils.ModelParams(
@@ -313,6 +305,15 @@ def main(
     print("Saving model to %s" % model_path)
     torch.save(model.state_dict(), model_path)
     torch.save(optimizer.state_dict(), opt_path)
+
+    config = utils.parse_model_params(model_params)
+
+    if type(config["embs"]) == str:
+        emb = config["embs"]
+        copy_files(
+            f"{data_dir}/dictionary/sy-emb-{emb}.npy",
+            output_dir
+        )
 
 
 if __name__ == "__main__":
