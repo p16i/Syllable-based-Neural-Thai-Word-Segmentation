@@ -39,13 +39,15 @@ def evaluate_model(preds, labels):
 
 
 def precision_recall(true_pos, false_pos, false_neg):
+    # todo: refactor to use torch metric
     dominator = true_pos + false_pos
     precision = true_pos/dominator if dominator > 0 else 0
 
     dominator = true_pos + false_neg
-    recall = true_pos/(true_pos+false_neg) if dominator > 0 else 0
+    recall = true_pos/dominator if dominator > 0 else 0
 
-    f1 = 2*precision*recall / (precision+recall)
+    dominator = precision + recall 
+    f1 = 2*precision*recall / dominator if dominator > 0 else 0
 
     return precision, recall, f1
 
