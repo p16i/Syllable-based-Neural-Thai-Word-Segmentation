@@ -52,6 +52,7 @@ if __name__ == '__main__':
     dt = datetime.today().strftime("%Y-%m-%d--%H-%M")
 
     config_name = f"{config_name}-{dt}"
+    print(config_name)
 
     group_output_dir = f"./artifacts/{config_name.split('.')[0]}"
     max_epoch = int(arguments["--max-epoch"])
