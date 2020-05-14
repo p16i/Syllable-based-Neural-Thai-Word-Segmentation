@@ -124,6 +124,8 @@ def do_iterate(model, generator, device,
         step=step, prefix=prefix
     )
 
+    return avg_loss
+
 
 # taken from https://stackoverflow.com/questions/52660985/pytorch-how-to-get-learning-rate-during-training
 def get_lr(optimizer):
@@ -141,7 +143,6 @@ def main(
         model_params="",
         output_dir="",
         no_workers=4,
-        lr_schedule="",
         prev_model="",
     ):
 
@@ -208,13 +209,12 @@ def main(
 
         print("Current learning rate", get_lr(optimizer))
 
-    if lr_schedule:
-        schedule_params = utils.parse_model_params(lr_schedule)
-        scheduler = optim.lr_scheduler.StepLR(
-            optimizer,
-            step_size=schedule_params['step'],
-            gamma=schedule_params['gamma'],
-        )
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        "min",
+        patience=2,
+        verbose=True
+    )
 
     dataloader_params = dict(
         batch_size=batch_size,
@@ -259,13 +259,13 @@ def main(
     for e in range(1, epoch+1):
         print("===EPOCH %d ===" % (e))
         st_time = time.time()
-        if lr_schedule:
-            curr_lr = get_lr(optimizer)
-            print_floydhub_metrics(dict(lr=curr_lr), step=e, prefix="global")
-            print("lr: ", curr_lr)
+
+        curr_lr = get_lr(optimizer)
+        print_floydhub_metrics(dict(lr=curr_lr), step=e, prefix="global")
+        print("lr: ", curr_lr)
 
         with utils.Timer("epoch-training") as timer:
-            do_iterate(model, training_generator,
+            _ = do_iterate(model, training_generator,
                 prefix="training",
                 step=e,
                 device=device,
@@ -275,7 +275,7 @@ def main(
 
         with utils.Timer("epoch-validation") as timer, \
             torch.no_grad():
-            do_iterate(model, validation_generator,
+            val_loss = do_iterate(model, validation_generator,
                 prefix="validation",
                 step=e,
                 device=device,
@@ -285,8 +285,7 @@ def main(
         elapsed_time = (time.time() - st_time) / 60.
         print(f"Time took: {elapsed_time:.4f} mins")
 
-        if lr_schedule:
-            scheduler.step()
+        scheduler.step(0.01)
 
         if checkpoint and e % checkpoint == 0:
             model_path = "%s/model-e-%d.pth" % (output_dir, e)
@@ -319,7 +318,10 @@ def main(
             name=model_name,
             params=model.model_params,
             training_took=training_took,
-            num_trainable_params=model.total_trainable_params()
+            num_trainable_params=model.total_trainable_params(),
+            lr=lr,
+            weight_decay=weight_decay,
+            epoch=epoch
         )
     )
 

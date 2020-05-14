@@ -6,6 +6,6 @@ arch_oc: ["BI"]
 arch_embc: [32]
 arch_embt: [32]
 arch_embs: [64]
-arch_conv: randint(64, 512)
+arch_conv: randint(64, 256)
 arch_l1: randint(16, 48)
 arch_do: uniform(0, 0.5)

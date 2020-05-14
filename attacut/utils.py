@@ -19,6 +19,9 @@ class ModelParams(NamedTuple):
     params: str
     training_took: float
     num_trainable_params: int
+    lr: float
+    weight_decay: float
+    epoch: int
 
 
 class Timer:
