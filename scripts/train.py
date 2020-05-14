@@ -263,6 +263,7 @@ def main(
         )
     )
 
+    start_training_time = time.time()
     for e in range(1, epoch+1):
         print("===EPOCH %d ===" % (e))
         st_time = time.time()
@@ -300,6 +301,9 @@ def main(
             print("Saving model to %s" % model_path)
             torch.save(model.state_dict(), model_path)
 
+    training_took = time.time() - start_training_time
+
+    print(f"[training] total: {training_took}")
 
     model_path = "%s/model.pth" % output_dir
     opt_path = "%s/optimizer.pth" % output_dir
@@ -316,7 +320,6 @@ def main(
             f"{data_dir}/dictionary/sy-emb-{emb}.npy",
             output_dir
         )
-
 
 if __name__ == "__main__":
     fire.Fire(main)
