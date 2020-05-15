@@ -139,7 +139,7 @@ def main(
         lr=0.001,
         batch_size=64,
         weight_decay=0.0,
-        checkpoint=5,
+        checkpoint=0,
         model_params="",
         output_dir="",
         no_workers=4,
