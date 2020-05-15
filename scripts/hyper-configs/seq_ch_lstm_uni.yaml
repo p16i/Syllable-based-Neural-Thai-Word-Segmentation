@@ -1,0 +1,10 @@
+model_name: ["seq_ch_lstm"]
+batch_size: [32]
+lr: loguniform(1e-6, 1e-3)
+weight_decay: loguniform(1e-6, 1e-3)
+arch_oc: ["BI"]
+arch_bi: [0]
+arch_embc: [32]
+arch_embt: [32]
+arch_cells: randint(128, 2048)
+arch_l1: randint(16, 48)
