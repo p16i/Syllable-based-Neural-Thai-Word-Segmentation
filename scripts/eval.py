@@ -30,6 +30,9 @@ def _read_file(path):
         lines = map(lambda r: r.strip(), f.readlines())
     return list(lines)
 
+def _compute_f1(precision, recall):
+    return 2*precision*recall / (precision + recall)
+
 if __name__ == "__main__":
     arguments = docopt(__doc__, version=f"AttaCut: version {__version__}")
 
@@ -69,11 +72,21 @@ if __name__ == "__main__":
         statistics["char_level:tp"] + statistics["char_level:fn"]
     )
 
+    statistics["char_level:f1"] = _compute_f1(
+        statistics["char_level:precision"],
+        statistics["char_level:recall"]
+    )
+
     statistics["word_level:precision"] = statistics["word_level:correctly_tokenised_words"] \
         / statistics["word_level:total_words_in_sample"]
 
     statistics["word_level:recall"] = statistics["word_level:correctly_tokenised_words"] \
         / statistics["word_level:total_words_in_ref_sample"]
+
+    statistics["word_level:f1"] = _compute_f1(
+        statistics["word_level:precision"],
+        statistics["word_level:recall"]
+    )
 
     statistics["time_took"] = time_took
     statistics["model_path"] = model_path

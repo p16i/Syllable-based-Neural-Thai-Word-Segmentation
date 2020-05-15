@@ -15,6 +15,14 @@ from glob import glob
 import pandas as pd
 import yaml
 
+def load_eval_stat(model_path, file):
+    with open(f"{model_path}/{file}.json") as fh:
+        st = json.load(fh)
+
+        st = dict(map(lambda x: (f"{file}:{x[0]}", x[1]), st.items()))
+
+        return st
+
 if __name__ == "__main__":
     arguments = docopt(__doc__)
 
@@ -22,17 +30,19 @@ if __name__ == "__main__":
 
     data = []
 
-    for sf in glob(model_group):
+    for path in glob(model_group):
         # read params
-        with open(f"{sf}/params.yml") as fh:
+        with open(f"{path}/params.yml") as fh:
             dd = yaml.full_load(fh)
 
-        # check if it exits
-        with open(f"{sf}/best-test.json") as fh:
-            st = json.load(fh)
-            dd = dict(**dd, **st)
+        test_stat = load_eval_stat(path, "best-test")
+        val_stat = load_eval_stat(path, "best-val")
 
-        data.append(dd)
+        data.append(dict(
+            **dd,
+            **val_stat,
+            **test_stat
+        )
 
     df = pd.DataFrame(data)
     dest = "/".join(model_group.split("/")[:-1]) + "/stats.csv"
