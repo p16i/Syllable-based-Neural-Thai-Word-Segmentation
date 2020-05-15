@@ -19,6 +19,16 @@ except RuntimeError:
 
 SEP = "|"
 
+
+# For models tranied with weight-decay, some weights are close to zero causing denormal
+# ref: https://en.wikipedia.org/wiki/Denormal_number
+# This block is aken from https://github.com/pytorch/pytorch/issues/19651#issuecomment-486170718
+if not torch.set_flush_denormal(True):
+    print("Unable to set flush denormal")
+    print("Pytorch compiled without advanced CPU")
+    print("at: https://github.com/pytorch/pytorch/blob/84b275b70f73d5fd311f62614bccc405f3d5bfa3/aten/src/ATen/cpu/FlushDenormal.cpp#L13")
+
+
 def get_argument(dict, name, default):
     v = dict.get(name)
     return v if v is not None else default
@@ -109,32 +119,34 @@ def main(src, model, num_cores=4, batch_size=32, dest=None, device="cpu"):
 
     tokenizer.model.to(device)
 
+    tokenizer.model.eval()
     results = []
 
     with torch.no_grad(), \
         tqdm(total=total_lines) as tq, \
         open(dest, "w") as fout:
-          for batch in dataloader:
-              (x, labels, perm_idx), tokens = batch
-              probs = tokenizer.model(x).cpu().detach().numpy()
 
-              preds = tokenizer.model.output_scheme.decode_condition(
-                np.argmax(probs, axis=2)
-              )
+            for batch in dataloader:
+                (x, labels, perm_idx), tokens = batch
+                probs = tokenizer.model(x).cpu().detach().numpy()
 
-              max_seq = x[1].max().cpu().detach().numpy()
+                preds = tokenizer.model.output_scheme.decode_condition(
+                  np.argmax(probs, axis=2)
+                )
 
-              perm_idx = perm_idx.cpu().detach()
-              preds = preds.reshape((-1, max_seq))
+                max_seq = x[1].max().cpu().detach().numpy()
 
-              for ori_ix, after_sorting_ix in enumerate(np.argsort(perm_idx)):
-                  pred = preds[after_sorting_ix, :]
-                  token = tokens[ori_ix]
+                perm_idx = perm_idx.cpu().detach()
+                preds = preds.reshape((-1, max_seq))
 
-                  words = preprocessing.find_words_from_preds(token, pred)
-                  fout.write("%s\n" % SEP.join(words))
+                for ori_ix, after_sorting_ix in enumerate(np.argsort(perm_idx)):
+                    pred = preds[after_sorting_ix, :]
+                    token = tokens[ori_ix]
 
-              tq.update(n=preds.shape[0])
+                    words = preprocessing.find_words_from_preds(token, pred)
+                    fout.write("%s\n" % SEP.join(words))
+
+                tq.update(n=preds.shape[0])
 
     time_took = time.time() - start_time
 
