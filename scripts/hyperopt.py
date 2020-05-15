@@ -54,7 +54,6 @@ if __name__ == '__main__':
     config_name = f"{config_name}-{dt}"
     print(config_name)
 
-    group_output_dir = f"./artifacts/{config_name.split('.')[0]}"
     max_epoch = int(arguments["--max-epoch"])
 
     n_iters = int(arguments["--N"])
@@ -77,7 +76,7 @@ sbatch --job-name {job_name} --output "./logs/{job_name}.out" jobscript.sh ./scr
 
     for i, p in enumerate(param_list):
         job_name = f"{config_name}.{n_iters}.{i}.log"
-        output_dir = f"{group_output_dir}/run-{i}"
+        output_dir = f"./artifacts/{config_name}.{n_iters}/run-{i}"
         p = merge_arch_params(p)
         cmd = cmd_template.format(
             **p,
