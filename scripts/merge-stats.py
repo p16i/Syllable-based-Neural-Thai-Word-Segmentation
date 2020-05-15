@@ -42,7 +42,7 @@ if __name__ == "__main__":
             **dd,
             **val_stat,
             **test_stat
-        )
+        ))
 
     df = pd.DataFrame(data)
     dest = "/".join(model_group.split("/")[:-1]) + "/stats.csv"
