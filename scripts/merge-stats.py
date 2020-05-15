@@ -35,7 +35,7 @@ if __name__ == "__main__":
         data.append(dd)
 
     df = pd.DataFrame(data)
-    dest = "/".join(model_group.split("/")[:-1])
+    dest = "/".join(model_group.split("/")[:-1]) + "/stats.csv"
     print(f"saving file to {dest}")
     df.to_csv(dest, index=False)
 
