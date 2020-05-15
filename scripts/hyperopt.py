@@ -69,7 +69,8 @@ sbatch --job-name {job_name} --output "./logs/{job_name}.out" jobscript.sh ./scr
     --output-dir="{output_dir}" \
     --lr {lr} \
     --batch-size={batch_size} \
-    --model-params="{arch}"
+    --model-params="{arch}" \
+    --weight-decay={weight_decay}
     """
 
     print("------------------------")
