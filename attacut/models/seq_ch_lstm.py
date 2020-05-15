@@ -10,17 +10,13 @@ log = logger.get_logger(__name__)
 
 
 class Model(BaseModel):
-    dataset = dataloaders.SyllableCharacterSeqDataset
+    dataset = dataloaders.CharacterSeqDataset
 
-    def __init__(self, data_config, model_config="embc:16|embt:8|embs:8|cells:32|l1:16|bi:1|oc:BI"):
+    def __init__(self, data_config, model_config="embc:16|embt:8|cells:32|l1:16|bi:1|oc:BI"):
         super(Model, self).__init__()
 
-
-        no_chars = data_config['num_char_tokens']
+        no_chars = data_config["num_tokens"]
         log.info("no. characters: %d" % no_chars)
-
-        no_syllables = data_config['num_tokens']
-        log.info("no. syllables: %d" % no_syllables)
 
         config = utils.parse_model_params(model_config)
 
@@ -37,13 +33,7 @@ class Model(BaseModel):
             padding_idx=0
         )
 
-        self.sy_embeddings = nn.Embedding(
-            no_syllables,
-            config["embs"],
-            padding_idx=0
-        )
-
-        emb_dim = config["embc"] + config["embs"] + config["embt"]
+        emb_dim = config["embc"] + config["embt"]
 
         if config["bi"]:
             print("using bi-direction")
@@ -61,13 +51,12 @@ class Model(BaseModel):
     def forward(self, inputs):
         x, seq_lengths = inputs
 
-        x_char, x_type, x_syllable = x[:, 0, :], x[:, 1, :], x[:, 2, :]
+        x_char, x_type = x[:, 0, :], x[:, 1, :]
 
         ch_embedding = self.ch_embeddings(x_char)
         ch_type_embedding = self.ch_type_embeddings(x_type)
-        sy_embedding = self.sy_embeddings(x_syllable)
 
-        embedding = torch.cat((ch_embedding, ch_type_embedding, sy_embedding), dim=2)
+        embedding = torch.cat((ch_embedding, ch_type_embedding), dim=2)
 
         out, _ = self.lstm(embedding.permute(1, 0, 2))
 
