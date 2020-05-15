@@ -42,9 +42,7 @@ class SequenceDataset(Dataset):
         x = x.to(device)
 
         y = inputs[1].long().to(device)
-        print("before", seq_lengths.device)
         seq_lengths = seq_lengths.to(device)
-        print("after", seq_lengths.device)
 
         return (x, seq_lengths), y, np.prod(y.shape)
 
