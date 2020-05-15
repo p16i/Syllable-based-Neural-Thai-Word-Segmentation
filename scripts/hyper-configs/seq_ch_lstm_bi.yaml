@@ -6,5 +6,5 @@ arch_oc: ["BI"]
 arch_bi: [1]
 arch_embc: [32]
 arch_embt: [32]
-arch_cells: randint(128, 2048)
+arch_cells: randint(64, 512)
 arch_l1: randint(16, 48)
