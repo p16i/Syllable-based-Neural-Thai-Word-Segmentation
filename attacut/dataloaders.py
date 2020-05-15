@@ -40,7 +40,9 @@ class SequenceDataset(Dataset):
 
         x, seq_lengths = inputs[0]
         x = x.to(device)
+
         y = inputs[1].long().to(device)
+        seq_lengths = seq_lengths.to(device)
 
         return (x, seq_lengths), y, np.prod(y.shape)
 
