@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     data = []
 
-    for sf in glob(model_group):k
+    for sf in glob(model_group):
         # read params
         with open(f"{sf}/params.yml") as fh:
             dd = yaml.full_load(fh)
@@ -37,6 +37,6 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(data)
     dest = "/".join(model_group.split("/")[:-1])
-    print("saving file to dest")
+    print(f"saving file to {dest}")
     df.to_csv(dest, index=False)
 
