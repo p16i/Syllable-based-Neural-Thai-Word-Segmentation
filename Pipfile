@@ -20,6 +20,7 @@ nptyping = "*"
 pyyaml = "*"
 ssg = "*"
 docopt = "*"
+pytorch-crf = "==0.7.2"
 
 [requires]
 python_version = "3.7"
