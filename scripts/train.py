@@ -45,10 +45,9 @@ def do_iterate(model, generator, device,
         if optimizer:
             model.zero_grad()
 
-
         logits = model(xd)
 
-        loss = criterion(model, logits, yd, seq)
+        loss = criterion(model, logits, yd, seq.to(device))
 
         if optimizer:
             loss.backward()
