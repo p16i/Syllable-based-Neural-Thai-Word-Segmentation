@@ -55,6 +55,8 @@ class Model(BaseModel):
         return out
 
     def decode(self, logits, seq_lengths):
+        mask = loss.create_mask_with_length(seq_lengths).to(logits.device)
+
         return self.crf.decode(
-            logits, mask=loss.create_mask_with_length(seq_lengths)
+            logits, mask=mask
         )
