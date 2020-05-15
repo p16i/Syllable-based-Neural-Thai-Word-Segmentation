@@ -16,46 +16,10 @@ import torch.optim as optim
 from torch.utils import data
 
 from attacut import dataloaders as dl, output_tags
-from attacut import evaluation, models, utils
+from attacut import evaluation, models, utils, loss
 
 def _create_metrics(metrics=["true_pos", "false_pos", "false_neg"]):
     return dict(zip(metrics, [0]*len(metrics)))
-
-
-def accumuate_metrics(m1, m2):
-    for k, v in m1.items():
-        m1[k] = v + m2[k]
-    return m1
-
-
-def evaluate_model(preds, labels):
-    metrics = evaluation.compute_metrics(labels, preds)
-
-    return {
-        "true_pos": metrics.tp,
-        "false_pos": metrics.fp,
-        "false_neg": metrics.fn
-    }
-
-
-def precision_recall(true_pos, false_pos, false_neg):
-    # todo: refactor to use torch metric
-    dominator = true_pos + false_pos
-    precision = true_pos/dominator if dominator > 0 else 0
-
-    dominator = true_pos + false_neg
-    recall = true_pos/dominator if dominator > 0 else 0
-
-    dominator = precision + recall 
-    f1 = 2*precision*recall / dominator if dominator > 0 else 0
-
-    return precision, recall, f1
-
-
-def print_floydhub_metrics(metrics, step=0, prefix=""):
-    if 'FLOYDHUB' in os.environ and os.environ['FLOYDHUB']:
-        for k, v in metrics.items():
-            print('{"metric": "%s:%s", "value": %f, "step": %d}' % (k, prefix, v, step))
 
 
 def copy_files(path, dest):
@@ -70,7 +34,6 @@ def do_iterate(model, generator, device,
     optimizer=None, criterion=None, prefix="", step=0):
 
     total_loss, total_preds = 0, 0
-    metrics = _create_metrics()
 
     for _, batch in enumerate(generator):
         (x, seq), labels, perm_ix = batch
@@ -84,12 +47,8 @@ def do_iterate(model, generator, device,
 
 
         logits = model(xd)
-        logits = logits.reshape(-1, logits.shape[-1])
 
-        loss = criterion(
-            logits,
-            yd.reshape(-1)
-        )
+        loss = criterion(model, logits, yd, seq)
 
         if optimizer:
             loss.backward()
@@ -98,31 +57,8 @@ def do_iterate(model, generator, device,
         total_preds += total_batch_preds
         total_loss += loss.item() * total_batch_preds
 
-        preds  = model.output_scheme.decode_condition(
-            np.argmax(logits.cpu().detach().numpy(), axis=1).reshape(-1)
-        )
-        yd = model.output_scheme.decode_condition(yd.cpu().detach().numpy())
-
-        accumuate_metrics(metrics, evaluate_model(preds, yd))
-
     avg_loss = total_loss / total_preds if total_preds > 0 else 0
-
-    pc_values = precision_recall(**metrics)
-    print("[%s] loss %f | precision %f | recall %f | f1 %f" % (
-        prefix,
-        avg_loss,
-        *pc_values
-    ))
-
-    print_floydhub_metrics(
-        dict(
-            loss=avg_loss,
-            precision=pc_values[0],
-            recall=pc_values[1],
-            f1=pc_values[2]
-        ),
-        step=step, prefix=prefix
-    )
+    print(f"[{prefix}] loss {avg_loss:.4f}")
 
     return avg_loss
 
@@ -193,7 +129,10 @@ def main(
 
     model = model.to(device)
 
-    criterion = torch.nn.CrossEntropyLoss()
+    if hasattr(model, "crf"):
+        criterion = loss.crf
+    else:
+        criterion = loss.cross_ent
 
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
@@ -261,8 +200,7 @@ def main(
         st_time = time.time()
 
         curr_lr = get_lr(optimizer)
-        print_floydhub_metrics(dict(lr=curr_lr), step=e, prefix="global")
-        print("lr: ", curr_lr)
+        print(f"lr={lr}")
 
         with utils.Timer("epoch-training") as timer:
             _ = do_iterate(model, training_generator,

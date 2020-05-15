@@ -40,9 +40,9 @@ class SequenceDataset(Dataset):
 
         x, seq_lengths = inputs[0]
         x = x.to(device)
-        y = inputs[1].long().to(device).reshape(-1)
+        y = inputs[1].long().to(device)
 
-        return (x, seq_lengths), y, y.shape[0]
+        return (x, seq_lengths), y, np.prod(y.shape)
 
     @staticmethod
     def _process_line(line: str, output_scheme):

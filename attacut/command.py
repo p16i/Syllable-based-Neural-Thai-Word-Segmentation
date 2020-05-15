@@ -128,25 +128,22 @@ def main(src, model, num_cores=4, batch_size=32, dest=None, device="cpu"):
 
             for batch in dataloader:
                 (x, labels, perm_idx), tokens = batch
-                probs = tokenizer.model(x).cpu().detach().numpy()
+                logits = tokenizer.model(x)
 
-                preds = tokenizer.model.output_scheme.decode_condition(
-                  np.argmax(probs, axis=2)
-                )
+                seq_lengths = x[1]
 
-                max_seq = x[1].max().cpu().detach().numpy()
+                preds = tokenizer.model.decode(logits, seq_lengths)
 
                 perm_idx = perm_idx.cpu().detach()
-                preds = preds.reshape((-1, max_seq))
 
                 for ori_ix, after_sorting_ix in enumerate(np.argsort(perm_idx)):
-                    pred = preds[after_sorting_ix, :]
+                    pred = preds[after_sorting_ix]
                     token = tokens[ori_ix]
 
                     words = preprocessing.find_words_from_preds(token, pred)
                     fout.write("%s\n" % SEP.join(words))
 
-                tq.update(n=preds.shape[0])
+                tq.update(n=seq_lengths.shape[0])
 
     time_took = time.time() - start_time
 

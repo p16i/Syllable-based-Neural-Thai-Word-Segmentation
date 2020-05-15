@@ -3,7 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
-from attacut import utils, dataloaders, logger, output_tags, char_type
+from torchcrf import CRF
+
+from attacut import utils, dataloaders, logger, output_tags, char_type, loss
 from . import BaseModel, ConvolutionLayer
 
 log = logger.get_logger(__name__)
@@ -12,7 +14,7 @@ log = logger.get_logger(__name__)
 class Model(BaseModel):
     dataset = dataloaders.SyllableSeqDataset
 
-    def __init__(self, data_config, model_config="embs:8|cells:32|l1:16|oc:BI"):
+    def __init__(self, data_config, model_config="embs:8|cells:32|l1:16|oc:BI|crf:1"):
         super(Model, self).__init__()
 
         no_syllables = data_config['num_tokens']
@@ -27,6 +29,10 @@ class Model(BaseModel):
             config["embs"],
             padding_idx=0
         )
+
+        if config["crf"]:
+            assert self.output_scheme.num_tags > 2, "Using CRF doesn't work with BI tag"
+            self.crf = CRF(self.output_scheme.num_tags, batch_first=True)
 
         emb_dim = config["embs"]
 
@@ -47,3 +53,8 @@ class Model(BaseModel):
         out = self.linear1(out)
 
         return out
+
+    def decode(self, logits, seq_lengths):
+        return self.crf.decode(
+            logits, mask=loss.create_mask_with_length(seq_lengths)
+        )
