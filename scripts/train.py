@@ -305,7 +305,7 @@ def main(
 
     config = utils.parse_model_params(model_params)
 
-    if type(config["embs"]) == str:
+    if "embs" in config and type(config["embs"]) == str:
         emb = config["embs"]
         copy_files(
             f"{data_dir}/dictionary/sy-emb-{emb}.npy",
