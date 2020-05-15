@@ -76,8 +76,7 @@ if __name__ == "__main__":
         / statistics["word_level:total_words_in_ref_sample"]
 
     statistics["time_took"] = time_took
-    # todo: stats
-    print(statistics)
+    statistics["model_path"] = model_path
 
     stat_file = f"{model_path}/{slug}.json"
 
