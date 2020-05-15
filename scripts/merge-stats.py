@@ -8,7 +8,6 @@ Usage:
 """
 
 from docopt import docopt
-from attacut import command, __version__, benchmark
 import json
 
 
