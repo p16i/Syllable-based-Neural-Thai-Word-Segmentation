@@ -119,3 +119,14 @@ def create_start_stop_indices(seq_lengths):
         sp_indices.append(prev + s)
 
     return list(zip(st_indices, sp_indices))
+
+
+def compute_lstm_output_dim(num_cells, bidirectional):
+    if bidirectional:
+        print("using bi-direction")
+        num_lstm_output = 2*num_cells
+    else:
+        num_lstm_output = num_cells
+    
+    return num_cells, num_lstm_output, bool(bidirectional)
+    
