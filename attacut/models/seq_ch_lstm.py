@@ -35,16 +35,13 @@ class Model(BaseModel):
 
         emb_dim = config["embc"] + config["embt"]
 
-        if config["bi"]:
-            print("using bi-direction")
-            bi_direction = True
-            num_cells = config["cells"] // 2
-        else:
-            bi_direction = False
-            num_cells = config["cells"]
+        num_cells, num_lstm_output, bi_direction = utils.compute_lstm_output_dim(
+            config["cells"],
+            config["bi"]
+        )
 
         self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction)
-        self.linear1 = nn.Linear(config['cells'], self.output_scheme.num_tags)
+        self.linear1 = nn.Linear(num_lstm_output, self.output_scheme.num_tags)
 
         self.model_params = model_config
 
