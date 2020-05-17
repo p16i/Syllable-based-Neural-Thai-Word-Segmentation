@@ -36,8 +36,13 @@ class Model(BaseModel):
 
         emb_dim = config["embs"]
 
-        self.lstm = nn.LSTM(emb_dim, config["cells"] // 2, bidirectional=True)
-        self.linear1 = nn.Linear(config['cells'], self.output_scheme.num_tags)
+        num_cells, num_lstm_output, bi_direction = utils.compute_lstm_output_dim(
+            config["cells"],
+            config["bi"]
+        )
+
+        self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction)
+        self.linear1 = nn.Linear(num_lstm_output, self.output_scheme.num_tags)
 
         self.model_params = model_config
 
