@@ -51,7 +51,8 @@ class Model(BaseModel):
         )
 
         self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction)
-        self.linear1 = nn.Linear(num_lstm_output, self.output_scheme.num_tags)
+        self.linear1 = nn.Linear(num_lstm_output, config["l1"])
+        self.linear2 = nn.Linear(config["l1"], self.output_scheme.num_tags)
 
         self.model_params = model_config
 
@@ -71,5 +72,6 @@ class Model(BaseModel):
         out = out.permute(1, 0, 2)
 
         out = self.linear1(out)
+        out = self.linear2(out)
 
         return out
