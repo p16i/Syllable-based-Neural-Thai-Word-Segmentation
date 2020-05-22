@@ -14,7 +14,7 @@ log = logger.get_logger(__name__)
 class Model(BaseModel):
     dataset = dataloaders.SyllableSeqDataset
 
-    def __init__(self, data_config, model_config="embs:8|cells:32|l1:16|oc:BI|crf:1"):
+    def __init__(self, data_config, model_config="embs:8|cells:32|l1:16|oc:BI|crf:1|do:0.0"):
         super(Model, self).__init__()
 
         no_syllables = data_config['num_tokens']
@@ -41,7 +41,7 @@ class Model(BaseModel):
             config["bi"]
         )
 
-        self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction)
+        self.lstm = nn.LSTM(emb_dim, num_cells, dropout=config["do"], bidirectional=bi_direction)
         self.linear1 = nn.Linear(num_lstm_output, config["l1"])
         self.linear2 = nn.Linear(config["l1"], self.output_scheme.num_tags)
 
