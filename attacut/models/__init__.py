@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import attacut
-from attacut import logger
+from attacut import logger, loss
 
 log = logger.get_logger(__name__)
 
@@ -84,10 +84,16 @@ class BaseModel(nn.Module):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def decode(self, logits, seq_lengths):
-        _, indices = torch.max(logits, dim=2)
-        return self.output_scheme.decode_condition(
-            indices.cpu().detach().numpy()
-        )
+        if hasattr(self, "crf"):
+            mask = loss.create_mask_with_length(seq_lengths).to(logits.device)
+            return self.crf.decode(
+                logits, mask=mask
+            )
+        else:
+            _, indices = torch.max(logits, dim=2)
+            return self.output_scheme.decode_condition(
+                indices.cpu().detach().numpy()
+            )
 
 def get_model(model_name) -> BaseModel:
     module_path = "attacut.models.%s" % model_name

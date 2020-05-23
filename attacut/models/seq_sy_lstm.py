@@ -5,7 +5,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from torchcrf import CRF
 
-from attacut import utils, dataloaders, logger, output_tags, char_type, loss
+from attacut import utils, dataloaders, logger, output_tags, char_type
 from . import BaseModel, ConvolutionLayer
 
 log = logger.get_logger(__name__)
@@ -31,7 +31,6 @@ class Model(BaseModel):
         )
 
         if config["crf"]:
-            assert self.output_scheme.num_tags > 2, "Using CRF doesn't work with BI tag"
             self.crf = CRF(self.output_scheme.num_tags, batch_first=True)
 
         emb_dim = config["embs"]
@@ -60,12 +59,3 @@ class Model(BaseModel):
         out = self.linear2(out)
 
         return out
-
-    def decode(self, logits, seq_lengths):
-        if hasattr(self, "crf"):
-            mask = loss.create_mask_with_length(seq_lengths).to(logits.device)
-            return self.crf.decode(
-                logits, mask=mask
-            )
-        else:
-            return super().decode(logits, seq_lengths)

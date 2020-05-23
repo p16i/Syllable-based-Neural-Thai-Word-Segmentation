@@ -43,6 +43,9 @@ class Model(BaseModel):
             padding_idx=0
         )
 
+        if config["crf"]:
+            self.crf = CRF(self.output_scheme.num_tags, batch_first=True)
+
         emb_dim = config["embc"] + config["embs"] + config["embt"]
 
         num_cells, num_lstm_output, bi_direction = utils.compute_lstm_output_dim(
