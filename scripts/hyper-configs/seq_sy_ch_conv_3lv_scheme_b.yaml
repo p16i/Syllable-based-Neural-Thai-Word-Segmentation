@@ -1,11 +1,11 @@
 model_name: ["seq_sy_ch_conv_3lv"]
 batch_size: [32]
+lr: loguniform(1e-6, 1e-3)
+weight_decay: loguniform(1e-6, 1e-3)
 arch_embc: [32]
 arch_embt: [32]
 arch_embs: [64]
-lr: [4.65e-04]
-weight_decay: [1.06e-06]
-arch_conv: [137]
-arch_l1: [42]
-arch_do: [0.0929509300900459]
+arch_conv: randint(64, 256)
+arch_l1: randint(16, 48)
+arch_do: uniform(0, 0.5)
 arch_oc: ["SchemeB"]
