@@ -9,6 +9,8 @@ from . import BaseModel, ConvolutionLayer, prepare_embedding
 
 log = logger.get_logger(__name__)
 
+from torchcrf import CRF
+
 
 class Model(BaseModel):
     dataset = dataloaders.SyllableCharacterSeqDataset
@@ -41,6 +43,10 @@ class Model(BaseModel):
         )
 
         self.sy_embeddings = prepare_embedding(data_config, config)
+
+        if "crf" in config:
+            self.crf = CRF(self.output_scheme.num_tags, batch_first=True)
+
         emb_dim = config["embc"] + config["embt"] + self.sy_embeddings.weight.shape[1]
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
