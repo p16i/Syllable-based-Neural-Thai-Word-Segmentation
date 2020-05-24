@@ -109,3 +109,5 @@ artifacts/*
 .floydexpt
 local-artifacts
 data
+notebooks/figures/*
+notebooks/.DS_Store*
