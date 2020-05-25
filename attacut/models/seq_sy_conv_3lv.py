@@ -33,7 +33,7 @@ class Model(BaseModel):
         if "crf" in config:
             self.crf = CRF(self.output_scheme.num_tags, batch_first=True)
 
-        emb_dim = config["embc"] + config["embt"] + self.sy_embeddings.weight.shape[1]
+        emb_dim = self.sy_embeddings.weight.shape[1]
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
 

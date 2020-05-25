@@ -106,6 +106,8 @@ def prepare_embedding(data_config, model_config):
     if type(model_config["embs"]) == str:
         dict_dir = data_config["dict_dir"]
 
+        print(f"use embedding from {dict_dir}")
+
         name = model_config["embs"]
         sy_embeddings = np.load(f"{dict_dir}/sy-emb-{name}.npy")
 
@@ -126,6 +128,7 @@ def prepare_embedding(data_config, model_config):
             padding_idx=0
         )
     else:
+        print("create new syllable embedding")
         return nn.Embedding(
             data_config['num_tokens'],
             model_config["embs"],
