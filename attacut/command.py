@@ -36,15 +36,16 @@ def get_argument(dict, name, default):
 class AttaCutCLIDataset(Dataset):
       def __init__(self, src, tokenizer, device):
           self.src = src
-          self.total_lines = utils.wc_l(self.src)
 
           self.tokenizer = tokenizer
 
           self.device = device
 
           self.data = []
+
+          self.total_lines = 0
           with open(self.src, "r") as fin:
-              for txt in fin:
+              for i, txt in enumerate(fin):
                 txt = preprocessing.TRAILING_SPACE_RX.sub("", txt)
 
                 tokens, features = self.tokenizer.dataset.make_feature(txt)
@@ -61,6 +62,7 @@ class AttaCutCLIDataset(Dataset):
                 x = torch.squeeze(x)
 
                 self.data.append((((x, seq), labels), tokens))
+                self.total_lines += 1
 
       def __len__(self):
           return self.total_lines
