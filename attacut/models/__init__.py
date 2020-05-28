@@ -60,12 +60,13 @@ class ConvolutionLayer(nn.Module):
         return F.relu(self.conv(x))
 
 class IteratedDilatedConvolutions(nn.Module):
+    # ref: https://arxiv.org/abs/1702.02098
     def __init__(self, emb_dim, filters, dropout_rate):
         super(IteratedDilatedConvolutions, self).__init__()
 
-        self.conv1 = ConvolutionLayer(emb_dim, conv_filters, 3, dilation=1)
-        self.conv2 = ConvolutionLayer(conv_filters, conv_filters, 3, dilation=2)
-        self.conv3 = ConvolutionLayer(conv_filters, conv_filters, 3, dilation=4)
+        self.conv1 = ConvolutionLayer(emb_dim, filters, 3, dilation=1)
+        self.conv2 = ConvolutionLayer(filters, filters, 3, dilation=2)
+        self.conv3 = ConvolutionLayer(filters, filters, 3, dilation=4)
 
         self.dropout= torch.nn.Dropout(p=dropout_rate)
 
