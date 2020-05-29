@@ -10,7 +10,6 @@ def crf(model, logits, labels, seq_lengths):
         logits,
         labels,
         mask=mask,
-        reduction="mean"
     )
 
     # the module return log-likelihood
