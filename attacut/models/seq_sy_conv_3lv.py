@@ -35,8 +35,6 @@ class Model(BaseModel):
 
         emb_dim = self.sy_embeddings.weight.shape[1]
 
-        self.dropout= torch.nn.Dropout(p=dropout_rate)
-
         self.id_conv = IteratedDilatedConvolutions(
             emb_dim, conv_filters, dropout_rate
         )

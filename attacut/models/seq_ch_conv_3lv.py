@@ -32,8 +32,6 @@ class Model(BaseModel):
             config["embt"],
         )
 
-        self.dropout= torch.nn.Dropout(p=dropout_rate)
-
         emb_dim = config["embc"] + config["embt"]
 
         self.id_conv = IteratedDilatedConvolutions(

@@ -26,7 +26,7 @@ class Model(BaseModel):
         log.info("no. syllables: %d" % no_syllables)
 
         config = utils.parse_model_params(model_config)
-        conv_filters = config['conv']
+        conv_filters = config["conv"]
         dropout_rate = config.get("do", 0)
 
         self.output_scheme = output_tags.get_scheme(config["oc"])
