@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 
 from attacut import output_tags
 
@@ -6,7 +7,7 @@ from attacut import output_tags
 @pytest.mark.parametrize(
     ("labels", "sy_ix", "expected"),
     [
-        (
+        ( # character sequence
             [1, 0, 0, 0, 0], [7, 7, 7, 8, 8],
             {
                 "BI": [1, 0, 0, 0, 0],
@@ -14,7 +15,7 @@ from attacut import output_tags
                 "SchemeB": [3, 2, 2, 2, 2]
             }
         ),
-        (
+        ( # character sequence
             [1, 0, 0, 0, 0, 0, 0], [7, 7, 7, 8, 8, 9, 9],
             {
                 "BI": [1, 0, 0, 0, 0, 0, 0],
@@ -22,12 +23,28 @@ from attacut import output_tags
                 "SchemeB": [5, 4, 4, 4, 4, 4, 4]
             }
         ),
-        (
+        ( # character sequence
             [1, 0, 0, 0, 0, 1, 0], [7, 7, 7, 8, 8, 9, 9],
             {
                 "BI": [1, 0, 0, 0, 0, 1, 0],
                 "SchemeA": [1, 0, 0, 0, 0, 1, 0],
                 "SchemeB": [3, 2, 2, 2, 2, 1, 0]
+            }
+        ),
+        ( # syllable sequence
+            [1, 0, 1, 1, 1, 0, 0], [7, 8, 9, 2, 1, 3],
+            {
+                "BI": [1, 0, 1, 1, 1, 0, 0],
+                "SchemeASyLevel": [1, 0, 1, 1, 3, 2, 2],
+                "SchemeBSyLevel": [3, 2, 1, 1, 5, 4, 4],
+            }
+        ),
+        ( # syllable sequence
+            [1, 1, 0, 0, 0], [7, 3, 1, 2, 2],
+            {
+                "BI": [1, 1, 0, 0, 0],
+                "SchemeASyLevel": [1, 3, 2, 2, 2],
+                "SchemeBSyLevel": [1, 7, 6, 6, 6],
             }
         )
     ]
@@ -37,7 +54,7 @@ def test_encode(labels, sy_ix, expected):
     for name, exp in expected.items():
         scheme = output_tags.get_scheme(name)
 
-        assert scheme.encode(labels, sy_ix) == exp
+        np.testing.assert_array_equal(scheme.encode(labels, sy_ix), exp)
 
 @pytest.mark.parametrize(
     ("labels", "expected"),

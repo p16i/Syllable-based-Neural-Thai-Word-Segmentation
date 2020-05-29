@@ -5,8 +5,12 @@ def get_scheme(name):
         return SchemeBI
     elif name == "SchemeA":
         return SchemeA
+    elif name == "SchemeASyLevel":
+        return SchemeASyLevel
     elif name == "SchemeB":
         return SchemeB
+    elif name == "SchemeBSyLevel":
+        return SchemeBSyLevel
     else:
         raise ValueError(f"No Scheme: {name} exists!!")
 
@@ -39,14 +43,6 @@ class SchemeBI:
     def decode_condition(ix):
         return (ix % 2 == 1).astype(int)
 
-"""[summary]
-A คือ 1-2, 3-4, 5+
-    1, 0 คือ b, i ของ 1-2 พยางค์
-    3, 2 คือ b, i ของ 3-4 พยางค์
-    5, 4 คือ b, i ของ 5+ พยางค์ค่ะ
-
-B คือ 1, 2, 3, 4+ ค่ะ
-"""
 
 class SchemeA():
     """
@@ -59,7 +55,7 @@ class SchemeA():
     num_tags = 6
 
     @staticmethod
-    def encode(labels, sy_ix):
+    def encode(labels, sy_ix, syllable_level=False):
         b_locations = np.argwhere(labels == 1).reshape(-1)
 
         word_boundaries = find_word_boundaries(labels)
@@ -67,7 +63,10 @@ class SchemeA():
         new_labels = []
         for wb in word_boundaries:
             num_chars = wb[1] - wb[0]
-            num_syllables = len(set(sy_ix[wb[0]:wb[1]]))
+            if syllable_level:
+                num_syllables = num_chars
+            else:
+                num_syllables = len(set(sy_ix[wb[0]:wb[1]]))
 
             num_inner = num_chars - 1
 
@@ -87,6 +86,7 @@ class SchemeA():
     def decode_condition(ix):
         return (ix % 2 == 1).astype(int)
 
+
 class SchemeB():
     """
         B คือ 1, 2, 3, 4+ ค่ะ
@@ -98,7 +98,7 @@ class SchemeB():
     num_tags = 8
 
     @staticmethod
-    def encode(labels, sy_ix):
+    def encode(labels, sy_ix, syllable_level=False):
         b_locations = np.argwhere(labels == 1).reshape(-1)
 
         word_boundaries = find_word_boundaries(labels)
@@ -106,7 +106,11 @@ class SchemeB():
         new_labels = []
         for wb in word_boundaries:
             num_chars = wb[1] - wb[0]
-            num_syllables = len(set(sy_ix[wb[0]:wb[1]]))
+
+            if syllable_level:
+                num_syllables = num_chars
+            else:
+                num_syllables = len(set(sy_ix[wb[0]:wb[1]]))
 
             ub = np.min([num_syllables, 4])*2 - 1
 
@@ -120,3 +124,13 @@ class SchemeB():
     @staticmethod
     def decode_condition(ix):
         return (ix % 2 == 1).astype(int)
+
+class SchemeASyLevel(SchemeB):
+    @staticmethod
+    def encode(labels, sy_ix):
+        return SchemeA.encode(labels, sy_ix, syllable_level=True)
+
+class SchemeBSyLevel(SchemeB):
+    @staticmethod
+    def encode(labels, sy_ix):
+        return SchemeB.encode(labels, sy_ix, syllable_level=True)
