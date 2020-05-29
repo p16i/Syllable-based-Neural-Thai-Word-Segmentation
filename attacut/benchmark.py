@@ -8,8 +8,8 @@ import pandas as pd
 
 SEPARATOR = "|"
 
-# regex for removing to a space surrounded by separators, i.e. | |
-SURROUNDING_SEPS_RX = re.compile(
+# regex for removing to a space surrounded by separators, i.e. abc| | -> abc
+TAILING_SURROUNDING_SEPS_RX = re.compile(
     "{sep}? ?{sep}$".format(sep=re.escape(SEPARATOR))
 )
 
@@ -21,7 +21,6 @@ TAG_RX = re.compile("<\/?[A-Z]+>")
 
 # regex for tailing separator, i.e.  a|dog| -> a|dog
 TAILING_SEP_RX = re.compile("{sep}$".format(sep=re.escape(SEPARATOR)))
-
 
 def _f1(precision: float, recall: float) -> float:
     """
@@ -98,6 +97,8 @@ Pair (i=%d)
     return pd.DataFrame(results)
 
 
+
+import difflib 
 def preprocessing(txt: str, remove_space: bool = True) -> str:
     """
     Clean up text before performing evaluation.
@@ -106,16 +107,14 @@ def preprocessing(txt: str, remove_space: bool = True) -> str:
     :return: preprocessed text
     :rtype: str
     """
-    txt = re.sub(SURROUNDING_SEPS_RX, "", txt)
-
-    if remove_space:
-        txt = re.sub("\s+", "", txt)
-
-    txt = re.sub(MULTIPLE_SEPS_RX, SEPARATOR, txt)
-
+    txt = txt.strip()
     txt = re.sub(TAG_RX, "", txt)
 
+    txt = re.sub(TAILING_SURROUNDING_SEPS_RX, "", txt)
     txt = re.sub(TAILING_SEP_RX, "", txt).strip()
+
+    if txt[-1] == "|":
+        raise SystemExit("still has some tailing pipe (|)")
 
     return txt
 
