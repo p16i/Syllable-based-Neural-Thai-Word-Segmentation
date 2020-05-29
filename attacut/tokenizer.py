@@ -57,9 +57,9 @@ class Tokenizer:
         )
 
         x, _, _ = self.dataset.prepare_model_inputs(inputs, device=device)
-        logits = torch.sigmoid(self.model(x)).detach().numpy()
 
-        preds = self.model.decode(self.model(x))
+        preds = self.model.decode(self.model(x), len(tokens))
+        preds = np.array(preds).reshape(-1)
 
         words = preprocessing.find_words_from_preds(tokens, preds)
 
