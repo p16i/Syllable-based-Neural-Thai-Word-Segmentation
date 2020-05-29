@@ -32,6 +32,22 @@ def test_preprocessing(txt, expected, steps):
 
     assert act == expected
 
+@pytest.mark.parametrize(
+    ("syllable", "expected"),
+    [
+        ("Abce", "<ENGLISH>"),
+        ("034343", "<NUMBER>"),
+        ("WWWW.KABC.COM", "<URL>"),
+        ("   ", "<SPACE>"),
+        (" ", "<SPACE>"),
+        ("!", "<PUNC>"),
+    ]
+)
+def test_syllable2token(syllable, expected):
+    act = preprocessing.syllable2token(syllable)
+
+    assert act == expected
+
 @pytest.mark.skip(reason="to fix later")
 @pytest.mark.parametrize(
     ("txt", "expected", "max_length"),

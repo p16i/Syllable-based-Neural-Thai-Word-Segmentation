@@ -11,6 +11,7 @@ EMAIL_RX = re.compile(r"^\w+\@\w+\.\w+$")
 NUMBER_RX = re.compile(r"[0-9,]+")
 TRAILING_SPACE_RX = re.compile(r"\n$")
 URL_RX = re.compile(r"(https?:\/\/)?(\w+\.)?\w+\.\w+")
+SPACE_RX = re.compile(r"\s+")
 
 PUNCTUATION_AND_SPACE = list(string.punctuation) + [" "]
 
@@ -24,7 +25,13 @@ DEFAULT_PREPROCESSING_STEPS = [
 
 
 def syllable2token(syllable: str) -> str:
-    if ARABIC_RX.match(syllable):
+    if SPACE_RX.match(syllable):
+        return "<SPACE>"
+    elif syllable in string.punctuation:
+        return "<PUNC>"
+    elif URL_RX.match(syllable):
+        return "<URL>"
+    elif ARABIC_RX.match(syllable):
         return "<ENGLISH>"
     elif NUMBER_RX.match(syllable):
         return "<NUMBER>"
@@ -124,6 +131,9 @@ def find_words_from_preds(tokens, preds) -> List[str]:
 def syllable_tokenize(txt: str) -> List[str]:
     # Proxy function for syllable tokenization, in case we want to try
     # a different syllable tokenizer.
+
+    if len(txt) == 0:
+        return [""]
 
     phrases = [txt[0]]
     for c in txt[1:]:
