@@ -57,6 +57,52 @@ def test_encode(labels, sy_ix, expected):
         np.testing.assert_array_equal(scheme.encode(labels, sy_ix), exp)
 
 @pytest.mark.parametrize(
+    ("preds", "expected"),
+    [
+        ( # character sequence
+            {
+                "BI": [1, 0, 0, 0, 0],
+                "SchemeA": [1, 0, 0, 0, 0],
+                "SchemeB": [1, 0, 0, 0, 0]
+            },
+            [1, 0, 0, 0, 0]
+        ),
+        ( # character sequence
+            {
+                "BI": [1, 0, 1, 0, 0, 0, 0, 0], # pretend  the last word has three syllables
+                "SchemeA": [1, 0, 3, 2, 2, 2, 2, 2],
+                "SchemeB": [1, 0, 5, 4, 4, 4, 4, 4]
+            },
+            [1, 0, 1, 0, 0, 0, 0, 0]
+        ),
+        ( # syllable sequence
+            {
+                "BI": [1, 0, 1, 0, 0],
+                "SchemeASyLevel": [1, 0, 3, 2, 2],
+                "SchemeBSyLevel": [3, 2, 5, 4, 4]
+            },
+            [1, 0, 1, 0, 0]
+        ),
+        ( # syllable sequence
+            {
+                "BI": [1, 0, 1, 0, 0, 1, 0, 0, 0],
+                "SchemeASyLevel": [1, 0, 3, 2, 2, 5, 4, 4, 4],
+                "SchemeBSyLevel": [3, 2, 5, 4, 4, 7, 6, 6, 6]
+            },
+            [1, 0, 1, 0, 0, 1, 0, 0, 0]
+        ),
+    ]
+)
+def test_decode(preds, expected):
+    for name, pred in preds.items():
+        scheme = output_tags.get_scheme(name)
+
+        np.testing.assert_array_equal(
+            scheme.decode_condition(np.array(pred)),
+            expected
+        )
+
+@pytest.mark.parametrize(
     ("labels", "expected"),
     [
         (

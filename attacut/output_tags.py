@@ -35,11 +35,6 @@ class SchemeBI:
         return np.array(labels).astype(int)
 
     @staticmethod
-    def decode(pred_probs):
-        """ return {0, 1} sequence """
-        return (np.argmax(pred_probs, axis=1) == 1).reshape(-1)
-
-    @staticmethod
     def decode_condition(ix):
         return (ix % 2 == 1).astype(int)
 
@@ -90,10 +85,10 @@ class SchemeA():
 class SchemeB():
     """
         B คือ 1, 2, 3, 4+ ค่ะ
-        1 sy : [0, 1]
-        2 sy : [2, 3]
-        3 syl :[4, 5]
-        4 + : [6, 7]
+        1 sy : [0-I, 1-B]
+        2 sy : [2-I, 3-B]
+        3 syl :[4-I, 5-B]
+        4 + : [6-I, 7-B]
     """
     num_tags = 8
 
