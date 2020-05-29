@@ -12,6 +12,8 @@ NUMBER_RX = re.compile(r"[0-9,]+")
 TRAILING_SPACE_RX = re.compile(r"\n$")
 URL_RX = re.compile(r"(https?:\/\/)?(\w+\.)?\w+\.\w+")
 
+PUNCTUATION_AND_SPACE = list(string.punctuation) + [" "]
+
 DEFAULT_PREPROCESSING_STEPS = [
     "remove_tags", 
     "thai_digit_to_arabic_digit",
@@ -122,15 +124,26 @@ def find_words_from_preds(tokens, preds) -> List[str]:
 def syllable_tokenize(txt: str) -> List[str]:
     # Proxy function for syllable tokenization, in case we want to try
     # a different syllable tokenizer.
-    seps = txt.split(" ")
+
+    phrases = [txt[0]]
+    for c in txt[1:]:
+        if c in PUNCTUATION_AND_SPACE:
+            # repeated punctuation
+            if c == phrases[-1][-1]:
+                phrases[-1] += c
+            else:
+                phrases.append(c)
+        else:
+            # if the last character is a punctuation, then we create a new phrase
+            if phrases[-1][-1] in PUNCTUATION_AND_SPACE:
+                phrases.append(c)
+            else:
+                phrases[-1] += c
 
     new_tokens = []
 
-    for i, s in enumerate(seps):
+    for i, s in enumerate(phrases):
         tokens = ssg.syllable_tokenize(s)
         new_tokens.extend(tokens)
-
-        if i < len(seps) - 1:
-            new_tokens.append(" ")
 
     return new_tokens

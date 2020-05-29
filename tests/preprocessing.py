@@ -127,12 +127,18 @@ def test_find_words_from_preds(tokens, preds, expected):
     ("txt", "expected"),
     [ 
         ("วันนี้ โรงเรียนเปิด", "วัน~นี้~ ~โรง~เรียน~เปิด"),
-        # todo: this case isn't correct, might related to #2
-        ("วันนี้   โรงเรียนเปิด", "วัน~นี้~ ~~ ~~ ~โรง~เรียน~เปิด") 
+        ("วันนี้   โรงเรียนเปิด", "วัน~นี้~   ~โรง~เรียน~เปิด"),
+        ("อะไร... กันน่ะ", "อะ~ไร~...~ ~กัน~น่ะ"),
+        ("เทียมกัน ...", "เทียม~กัน~ ~..."),
+        # ("บทที่ ๓๒...", ""),
+        ("หน้าที่ 19...", "หน้า~ที่~ ~19~...")
     ]
 )
 def test_syllable_tokenize(txt, expected):
     act = preprocessing.syllable_tokenize(txt)
     exp = expected.split("~")
+
+    print(f"actual: {act}")
+    print(f"expected: {exp}")
 
     assert act == exp
