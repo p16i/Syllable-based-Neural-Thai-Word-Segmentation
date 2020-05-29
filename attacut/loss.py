@@ -4,7 +4,6 @@ import torch
 _cross_ent = torch.nn.CrossEntropyLoss()
 
 def crf(model, logits, labels, seq_lengths):
-    # todo: prepare mask
     mask = create_mask_with_length(seq_lengths)
 
     loss = model.crf(
