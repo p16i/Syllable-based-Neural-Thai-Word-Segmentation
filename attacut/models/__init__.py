@@ -103,9 +103,19 @@ class BaseModel(nn.Module):
     def decode(self, logits, seq_lengths):
         if hasattr(self, "crf"):
             mask = loss.create_mask_with_length(seq_lengths).to(logits.device)
-            return self.crf.decode(
+            crf_tags = self.crf.decode(
                 logits, mask=mask
             )
+
+            decoded_tags = []
+            # convert crf tags to BI
+            for i, tags in enumerate(crf_tags):
+                decoded_tags.append(
+                    self.output_scheme.decode_condition(
+                        tags
+                    )
+                )
+            return decoded_tags
         else:
             _, indices = torch.max(logits, dim=2)
             return self.output_scheme.decode_condition(
