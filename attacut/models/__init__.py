@@ -112,7 +112,7 @@ class BaseModel(nn.Module):
             for i, tags in enumerate(crf_tags):
                 decoded_tags.append(
                     self.output_scheme.decode_condition(
-                        tags
+                        np.array(tags)
                     )
                 )
             return decoded_tags
