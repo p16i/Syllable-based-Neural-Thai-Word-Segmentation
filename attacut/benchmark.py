@@ -109,6 +109,7 @@ def preprocessing(txt: str, remove_space: bool = True) -> str:
     """
     txt = txt.strip()
     txt = re.sub(TAG_RX, "", txt)
+    txt = re.sub(MULTIPLE_SEPS_RX, "|", txt)
 
     txt = re.sub(TAILING_SURROUNDING_SEPS_RX, "", txt)
     txt = re.sub(TAILING_SEP_RX, "", txt).strip()

@@ -11,6 +11,7 @@ from attacut import benchmark
         ("a|dog|", "a|dog"),
         ("<NE>Peter</NE>", "Peter"),
         ("abc| | ", "abc"),
+        ("foo| ||| ", "foo"),
     ]
 )
 def test_preprocessing(txt, expected):
