@@ -6,7 +6,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torchcrf import CRF
 
 from attacut import utils, dataloaders, logger, output_tags, char_type
-from . import BaseModel, ConvolutionLayer
+from . import BaseModel, ConvolutionLayer, EmbeddingWithDropout
 
 log = logger.get_logger(__name__)
 
@@ -24,13 +24,16 @@ class Model(BaseModel):
 
         self.output_scheme = output_tags.get_scheme(config["oc"])
 
-        self.sy_embeddings = nn.Embedding(
-            no_syllables,
-            config["embs"],
-            padding_idx=0
+        self.sy_embeddings = EmbeddingWithDropout(
+            nn.Embedding(
+                no_syllables,
+                config["embs"],
+                padding_idx=0
+            ),
+            config.get("do_emb", 0)
         )
 
-        if config["crf"]:
+        if config.get("crf", 0):
             self.crf = CRF(self.output_scheme.num_tags, batch_first=True)
 
         emb_dim = config["embs"]
@@ -39,6 +42,8 @@ class Model(BaseModel):
             config["cells"],
             config["bi"]
         )
+
+        self.dropout = nn.Dropout(config["do"])
 
         self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction)
         self.linear1 = nn.Linear(num_lstm_output, config["l1"])
@@ -54,6 +59,8 @@ class Model(BaseModel):
         out, _ = self.lstm(embedding.permute(1, 0, 2))
 
         out = out.permute(1, 0, 2)
+
+        out = self.dropout(out)
 
         out = self.linear1(out)
         out = self.linear2(out)

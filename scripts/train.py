@@ -202,6 +202,7 @@ def main(
         print(f"lr={lr}")
 
         with utils.Timer("epoch-training") as timer:
+            model.train()
             _ = do_iterate(model, training_generator,
                 prefix="training",
                 step=e,
@@ -212,6 +213,7 @@ def main(
 
         with utils.Timer("epoch-validation") as timer, \
             torch.no_grad():
+            model.eval()
             val_loss = do_iterate(model, validation_generator,
                 prefix="validation",
                 step=e,

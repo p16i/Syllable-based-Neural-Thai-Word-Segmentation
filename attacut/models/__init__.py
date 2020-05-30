@@ -68,13 +68,26 @@ class IteratedDilatedConvolutions(nn.Module):
         self.conv2 = ConvolutionLayer(filters, filters, 3, dilation=2)
         self.conv3 = ConvolutionLayer(filters, filters, 3, dilation=4)
 
-        self.dropout= torch.nn.Dropout(p=dropout_rate)
+        self.dropout = torch.nn.Dropout(p=dropout_rate)
 
 
     def forward(self, x):
         conv1 = self.dropout(self.conv1(x))
         conv2 = self.dropout(self.conv2(conv1))
         return self.dropout(self.conv3(conv2))
+
+class EmbeddingWithDropout(nn.Module):
+    # ref: https://arxiv.org/pdf/1708.02182.pdf
+    def __init__(self, emb_weight, dropout_rate):
+        super(EmbeddingWithDropout, self).__init__()
+
+        self.emb = emb_weight
+
+        self.dropout = dropout_rate
+
+    def forward(self, x):
+        dd = self.dropout if self.training else 0
+        return embedded_dropout(self.emb, x, dropout=self.dropout if self.training else 0)
 
 class BaseModel(nn.Module):
     dataset = None
@@ -161,3 +174,22 @@ def prepare_embedding(data_config, model_config):
             model_config["embs"],
             padding_idx=0
         )
+
+# taken from https://github.com/salesforce/awd-lstm-lm/blob/master/embed_regularize.py#L5
+def embedded_dropout(embed, words, dropout=0.1, scale=None):
+    if dropout:
+        mask = embed.weight.data.new().resize_((embed.weight.size(0), 1)).bernoulli_(1 - dropout).expand_as(embed.weight) / (1 - dropout)
+        masked_embed_weight = mask * embed.weight
+    else:
+        masked_embed_weight = embed.weight
+    if scale:
+        masked_embed_weight = scale.expand_as(masked_embed_weight) * masked_embed_weight
+
+    padding_idx = embed.padding_idx
+    if padding_idx is None:
+        padding_idx = -1
+
+    return torch.nn.functional.embedding(words, masked_embed_weight,
+        padding_idx, embed.max_norm, embed.norm_type,
+        embed.scale_grad_by_freq, embed.sparse
+    )
