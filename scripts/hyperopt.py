@@ -18,6 +18,8 @@ import time
 
 from datetime import datetime
 
+DATASET = "./data/best-syllable-big"
+
 
 def merge_arch_params(p):
     arch_params = []
@@ -64,7 +66,7 @@ if __name__ == '__main__':
 
     cmd_template = """
 sbatch --job-name {job_name} --output "./logs/{job_name}.out" jobscript.sh ./scripts/train.py --model-name {model_name} \
-    --data-dir ./data/best-big \
+    --data-dir {dataset} \
     --epoch {max_epoch} \
     --output-dir="{output_dir}" \
     --lr {lr} \
@@ -83,7 +85,8 @@ sbatch --job-name {job_name} --output "./logs/{job_name}.out" jobscript.sh ./scr
             **p,
             max_epoch=max_epoch,
             output_dir=output_dir,
-            job_name=job_name
+            job_name=job_name,
+            dataset=DATASET
         ).strip()
 
         if arguments["--dry-run"]:
