@@ -2,7 +2,7 @@ model_name: ["seq_sy_lstm"]
 batch_size: [32]
 lr: loguniform(1e-6, 1e-3)
 weight_decay: loguniform(1e-6, 1e-3)
-arch_oc: ["SchemeB"]
+arch_oc: ["SchemeBSyLevel"]
 arch_bi: [1]
 arch_embs: [64]
 arch_cells: randint(64, 512)
