@@ -133,7 +133,7 @@ def main(
     else:
         criterion = loss.cross_ent
 
-    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
 
     if prev_model:
         print("Loading prev optmizer's state")
