@@ -133,7 +133,7 @@ def main(
     else:
         criterion = loss.cross_ent
 
-    optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
     if prev_model:
         print("Loading prev optmizer's state")
@@ -150,7 +150,7 @@ def main(
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         "min",
-        patience=2,
+        patience=0,
         verbose=True
     )
 
@@ -194,6 +194,7 @@ def main(
     )
 
     start_training_time = time.time()
+    best_val_loss = np.inf
     for e in range(1, epoch+1):
         print("===EPOCH %d ===" % (e))
         st_time = time.time()
@@ -226,21 +227,20 @@ def main(
 
         scheduler.step(val_loss)
 
-        if checkpoint and e % checkpoint == 0:
-            model_path = "%s/model-e-%d.pth" % (output_dir, e)
+        if best_val_loss > val_loss:
+            model_path = "%s/model.pth" % output_dir
+            opt_path = "%s/optimizer.pth" % output_dir
+
             print("Saving model to %s" % model_path)
             torch.save(model.state_dict(), model_path)
+            torch.save(optimizer.state_dict(), opt_path)
+
+            best_val_loss = val_loss
 
     training_took = time.time() - start_training_time
 
-    print(f"[training] total: {training_took}")
+    print(f"[training] total time: {training_took}")
 
-    model_path = "%s/model.pth" % output_dir
-    opt_path = "%s/optimizer.pth" % output_dir
-
-    print("Saving model to %s" % model_path)
-    torch.save(model.state_dict(), model_path)
-    torch.save(optimizer.state_dict(), opt_path)
 
     config = utils.parse_model_params(model_params)
 
