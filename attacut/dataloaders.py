@@ -25,7 +25,11 @@ class SequenceDataset(Dataset):
         with open(path) as f, \
             utils.Timer("load-seq-data--%s" % suffix) as timer:
             for line in f:
-                self.data.append(self._process_line(line, output_scheme))
+                # we have syllables and bi tag for word boundary for each syllable here
+                syllables, w_bi_labels = line.strip().split(":--:")
+                w_bi_labels = np.array(list(w_bi_labels)).astype(int)
+                syllables = syllables.split("~")
+                self.data.append(self._process_training_line(syllables, w_bi_labels, output_scheme))
 
         self.total_samples = len(self.data)
 
@@ -74,11 +78,6 @@ class CharacterSeqDataset(SequenceDataset):
     def setup_featurizer(self):
         return dict(num_tokens=len(self.dict))
 
-    # # def __init__(self, )
-    # #     super(Model, self).__init__()
-    # def setup_featurizer(self, path: str):
-
-    #     return dict(num_tokens=len(self.dict))
 
     def make_feature(self, txt):
         characters = list(txt)
@@ -95,33 +94,46 @@ class CharacterSeqDataset(SequenceDataset):
             .reshape((1, 2, -1)) \
             .astype(np.int64)
 
-        # features = np.array(ch_ix, dtype=np.int64).reshape((1, -1))
-
         seq_lengths = np.array([features.shape[-1]], dtype=np.int64)
 
         return characters, (torch.from_numpy(features), torch.from_numpy(seq_lengths))
 
     # @staticmethod
-    def _process_line(self, line, output_scheme):
-        label, ch_indices, sy_indices = line.split("::")
+    def _process_training_line(self, syllables, w_bi_labels, output_scheme):
+        assert len(syllables) == len(w_bi_labels)
 
-        y = np.array(list(label)).astype(int)
-        sx = np.array(sy_indices.split(" ")).astype(int)
+        characters, syl4chr, labels = [], [], []
 
+        # we get syllable and its label here
+        for syllable, label in zip(syllables, w_bi_labels):
+            _len = len(syllable)
+            if _len == 0:
+                _len, _chr = 1, [""]
+                _label = [label]
+            else:
+                _chr = list(syllable)
+                _label = [label] + [0] * (_len - 1)
 
-        cx_ix = ch_indices.split(" ")
-        cx_ch = list(map(lambda ix: self.ch_ix_2_ch[int(ix)], cx_ix))
+            assert len(_chr) == len(_label) == _len, "%d vs %d vs %d" % (len(_chr), len(_label), _len)
 
-        cx = np.array(cx_ix).astype(int)
-        ctx = np.array(char_type.get_char_type_ix(cx_ch)).astype(int)
+            characters.extend(_chr)
+            labels.extend([label] + [0] * (_len - 1))
+            syl4chr.extend([syllable]*_len)
 
-        x = np.stack((cx, ctx), axis=0)
+        y = np.array(list(labels)).astype(int)
 
-        seq = len(y)
+        ch_ix = np.array(
+            list(map(lambda ch: preprocessing.character2ix(self.dict, ch), characters))
+        ).astype(int)
+        ct_ix = np.array(char_type.get_char_type_ix(characters)).astype(int)
 
-        y = output_scheme.encode(y, sx)
+        assert len(ch_ix) == len(ct_ix) == len(y)
 
-        return (x, seq), y
+        x = np.stack((ch_ix, ct_ix), axis=0)
+
+        y = output_scheme.encode(y, syl4chr)
+
+        return (x, len(y)), y
 
     @staticmethod
     def collate_fn(batch):
@@ -155,6 +167,8 @@ class SyllableCharacterSeqDataset(SequenceDataset):
         self.ch_dict = utils.load_dict(f"{dict_dir}/characters.json")
         self.sy_dict = utils.load_dict(f"{dict_dir}/syllables.json")
         self.dict_dir = dict_dir
+
+        print(f"we have {len(self.sy_dict)} syllables from {dict_dir}")
 
         self.ch_ix_2_ch = dict(zip(self.ch_dict.values(), self.ch_dict.keys()))
 
@@ -197,23 +211,45 @@ class SyllableCharacterSeqDataset(SequenceDataset):
         return list(txt), (torch.from_numpy(features), torch.from_numpy(seq_lengths))
 
     # @staticmethod
-    def _process_line(self, line, output_scheme):
-        label, ch_indices, sy_indices = line.split("::")
+    def _process_training_line(self, syllables, w_bi_labels, output_scheme):
+        assert len(syllables) == len(w_bi_labels)
 
-        y = np.array(list(label)).astype(int)
+        characters, syllable_indices, labels = [], [], []
 
-        cx_ix = ch_indices.split(" ")
-        cx_ch = list(map(lambda ix: self.ch_ix_2_ch[int(ix)], cx_ix))
-        cx = np.array(cx_ix).astype(int)
-        ctx = np.array(char_type.get_char_type_ix(cx_ch)).astype(int)
-        sx = np.array(sy_indices.split(" ")).astype(int)
-        x = np.stack((cx, ctx, sx), axis=0)
+        # we get syllable and its label here
+        for syllable, label in zip(syllables, w_bi_labels):
+            _len = len(syllable)
+            if _len == 0:
+                _len, _chr = 1, [""]
+                _label = [label]
+            else:
+                _chr = list(syllable)
+                _label = [label] + [0] * (_len - 1)
 
-        seq = len(y)
+            assert len(_chr) == len(_label) == _len, "%d vs %d vs %d" % (len(_chr), len(_label), _len)
 
-        y = output_scheme.encode(y, sx)
+            characters.extend(_chr)
+            labels.extend(_label)
 
-        return (x, seq), y
+            sy_ix = preprocessing.syllable2ix(self.sy_dict, syllable)
+            syllable_indices.extend([sy_ix]*_len)
+
+        y = np.array(list(labels)).astype(int)
+
+        ch_ix = np.array(
+            list(map(lambda ch: preprocessing.character2ix(self.ch_dict, ch), characters))
+        ).astype(int)
+        ct_ix = np.array(char_type.get_char_type_ix(characters)).astype(int)
+
+        x = np.stack((ch_ix, ct_ix, syllable_indices), axis=0)
+
+        y = output_scheme.encode(y, syllable_indices)
+
+        assert len(y) == len(ch_ix)
+        assert len(y) == len(ct_ix)
+        assert len(y) == len(syllable_indices)
+
+        return (x, len(y)), y
 
     @staticmethod
     def collate_fn(batch):
@@ -279,31 +315,42 @@ class SyllableSeqDataset(SequenceDataset):
 
         return syllables, (features, torch.from_numpy(seq_lengths))
 
+    # # @staticmethod
+    # def _process_training_line(self, line, output_scheme):
+    #     label, _, sy_indices = line.split("::")
+
+    #     y = np.array(list(label)).astype(int)
+
+    #     x = np.array(sy_indices.split(" "))
+
+    #     # here we have sy_ix per character location
+    #     y = output_scheme.encode(y, x)
+
+    #     _sy = x[0]
+
+    #     syllables, ys = [], []
+
+    #     for _x, _y in zip(x, y):
+    #         if _x != _sy:
+    #             syllables.append(_x)
+    #             ys.append(_y)
+    #             _sy = _x
+
+    #     # dims: (len,)
+    #     x = np.array(syllables).astype(int)
+
+    #     return (x, len(ys)), ys
+
     # @staticmethod
-    def _process_line(self, line, output_scheme):
-        label, _, sy_indices = line.split("::")
+    def _process_training_line(self, syllables, w_bi_labels, output_scheme):
+        sy_ix = list(map(lambda s: preprocessing.syllable2ix(self.sy_dict, s), syllables))
+        x = np.array(sy_ix)
 
-        y = np.array(list(label)).astype(int)
+        y = w_bi_labels
 
-        x = np.array(sy_indices.split(" "))
+        assert len(sy_ix) == len(y)
 
-        # here we have sy_ix per character location
-        y = output_scheme.encode(y, x)
-
-        _sy = x[0]
-
-        syllables, ys = [], []
-
-        for _x, _y in zip(x, y):
-            if _x != _sy:
-                syllables.append(_x)
-                ys.append(_y)
-                _sy = _x
-
-        # dims: (len,)
-        x = np.array(syllables).astype(int)
-
-        return (x, len(ys)), ys
+        return (x, len(y)), y
 
     @staticmethod
     def collate_fn(batch):
