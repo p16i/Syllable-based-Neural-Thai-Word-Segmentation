@@ -25,19 +25,18 @@ DEFAULT_PREPROCESSING_STEPS = [
 
 
 def syllable2token(syllable: str) -> str:
-    return syllable
-    # if SPACE_RX.match(syllable):
-    #     return "<SPACE>"
-    # elif syllable in string.punctuation:
-    #     return "<PUNC>"
-    # elif URL_RX.match(syllable):
-    #     return "<URL>"
-    # elif ARABIC_RX.match(syllable):
-    #     return "<ENGLISH>"
-    # elif NUMBER_RX.match(syllable):
-    #     return "<NUMBER>"
-    # else:
-    #     return syllable
+    if SPACE_RX.match(syllable):
+        return "<SPACE>"
+    elif syllable in string.punctuation:
+        return "<PUNC>"
+    elif URL_RX.match(syllable):
+        return "<URL>"
+    elif ARABIC_RX.match(syllable):
+        return "<ENGLISH>"
+    elif NUMBER_RX.match(syllable):
+        return "<NUMBER>"
+    else:
+        return syllable
 
 
 def syllable2ix(sy2ix: Dict[str, int], syllable: str) -> int:
