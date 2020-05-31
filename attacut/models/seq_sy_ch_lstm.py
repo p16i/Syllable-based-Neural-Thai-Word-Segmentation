@@ -73,7 +73,7 @@ class Model(BaseModel):
 
         embedding = torch.cat((ch_embedding, ch_type_embedding, sy_embedding), dim=2)
 
-        out, _ = self.lstm(embedding.permute(1, 0, 2))
+        out, _ = self.lstm(embedding)
 
         out = self.linear1(out)
         out = self.linear2(out)
