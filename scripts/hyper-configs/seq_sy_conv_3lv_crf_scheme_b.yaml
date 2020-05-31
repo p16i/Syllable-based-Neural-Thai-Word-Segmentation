@@ -4,7 +4,7 @@ lr: loguniform(1e-6, 1e-3)
 weight_decay: loguniform(1e-6, 1e-3)
 arch_oc: ["SchemeBSyLevel"]
 arch_embs: [64]
-arch_conv: randint(64, 256)
+arch_conv: randint(128, 256)
 arch_l1: randint(16, 48)
 arch_do: uniform(0, 0.5)
 arch_crf: [1]

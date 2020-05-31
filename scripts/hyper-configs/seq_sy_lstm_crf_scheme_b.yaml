@@ -5,6 +5,7 @@ weight_decay: loguniform(1e-6, 1e-3)
 arch_oc: ["SchemeBSyLevel"]
 arch_bi: [1]
 arch_embs: [64]
-arch_cells: randint(64, 512)
+arch_cells: randint(128, 512)
+arch_do: uniform(0, 0.5)
 arch_l1: randint(16, 48)
 arch_crf: [1]
