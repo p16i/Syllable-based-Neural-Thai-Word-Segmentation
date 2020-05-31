@@ -24,13 +24,10 @@ class Model(BaseModel):
 
         self.output_scheme = output_tags.get_scheme(config["oc"])
 
-        self.sy_embeddings = EmbeddingWithDropout(
-            nn.Embedding(
-                no_syllables,
-                config["embs"],
-                padding_idx=0
-            ),
-            config.get("do_emb", 0)
+        self.sy_embeddings = nn.Embedding(
+            no_syllables,
+            config["embs"],
+            padding_idx=0
         )
 
         if config.get("crf", 0):
