@@ -1,5 +1,5 @@
 model_name: ["seq_sy_ch_conv_3lv"]
-batch_size: [32]
+batch_size: [128]
 lr: loguniform(1e-6, 1e-3)
 weight_decay: loguniform(1e-6, 1e-3)
 arch_embc: [32]
