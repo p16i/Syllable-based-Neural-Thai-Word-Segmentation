@@ -1,6 +1,6 @@
 model_name: ["seq_sy_ch_lstm"]
 batch_size: [128]
-lr: loguniform(1e-6, 1e-3)
+lr: loguniform(1e-4, 1e-3)
 weight_decay: loguniform(1e-6, 1e-3)
 arch_bi: [1]
 arch_embc: [32]
