@@ -285,6 +285,7 @@ class SyllableSeqDataset(SequenceDataset):
     def __init__(self, dir:str = None, dict_dir: str = None, path: str = None, output_scheme = None):
 
         self.sy_dict = utils.load_dict(f"{dict_dir}/syllables.json")
+        print(f"we have {len(self.sy_dict)} syllables")
 
         super(SyllableSeqDataset, self).__init__(dir, dict_dir, path, output_scheme)
 
@@ -315,33 +316,6 @@ class SyllableSeqDataset(SequenceDataset):
 
         return syllables, (features, torch.from_numpy(seq_lengths))
 
-    # # @staticmethod
-    # def _process_training_line(self, line, output_scheme):
-    #     label, _, sy_indices = line.split("::")
-
-    #     y = np.array(list(label)).astype(int)
-
-    #     x = np.array(sy_indices.split(" "))
-
-    #     # here we have sy_ix per character location
-    #     y = output_scheme.encode(y, x)
-
-    #     _sy = x[0]
-
-    #     syllables, ys = [], []
-
-    #     for _x, _y in zip(x, y):
-    #         if _x != _sy:
-    #             syllables.append(_x)
-    #             ys.append(_y)
-    #             _sy = _x
-
-    #     # dims: (len,)
-    #     x = np.array(syllables).astype(int)
-
-    #     return (x, len(ys)), ys
-
-    # @staticmethod
     def _process_training_line(self, syllables, w_bi_labels, output_scheme):
         sy_ix = list(map(lambda s: preprocessing.syllable2ix(self.sy_dict, s), syllables))
         x = np.array(sy_ix)
