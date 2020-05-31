@@ -45,7 +45,7 @@ class Model(BaseModel):
 
         self.dropout = nn.Dropout(config["do"])
 
-        self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction)
+        self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction, batch_first=True)
         self.linear1 = nn.Linear(num_lstm_output, config["l1"])
         self.linear2 = nn.Linear(config["l1"], self.output_scheme.num_tags)
 
@@ -56,9 +56,7 @@ class Model(BaseModel):
 
         embedding = self.sy_embeddings(x)
 
-        out, _ = self.lstm(embedding.permute(1, 0, 2))
-
-        out = out.permute(1, 0, 2)
+        out, _ = self.lstm(embedding)
 
         out = self.dropout(out)
 
