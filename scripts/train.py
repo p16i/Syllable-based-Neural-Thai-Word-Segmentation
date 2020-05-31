@@ -200,7 +200,7 @@ def main(
         st_time = time.time()
 
         curr_lr = get_lr(optimizer)
-        print(f"lr={lr}")
+        print(f"lr={curr_lr}")
 
         with utils.Timer("epoch-training") as timer:
             model.train()
