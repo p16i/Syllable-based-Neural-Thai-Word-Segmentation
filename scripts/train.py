@@ -227,7 +227,7 @@ def main(
 
         scheduler.step(val_loss)
 
-        if best_val_loss > val_loss:
+        if val_loss < best_val_loss:
             model_path = "%s/model.pth" % output_dir
             opt_path = "%s/optimizer.pth" % output_dir
 
