@@ -40,6 +40,8 @@ class Model(BaseModel):
             config["bi"]
         )
 
+        self.dropout = nn.Dropout(config["do"])
+
         self.lstm = nn.LSTM(emb_dim, num_cells, bidirectional=bi_direction, batch_first=True)
         self.linear1 = nn.Linear(num_lstm_output, config["l1"])
         self.linear2 = nn.Linear(config["l1"], self.output_scheme.num_tags)
@@ -57,6 +59,7 @@ class Model(BaseModel):
         embedding = torch.cat((ch_embedding, ch_type_embedding), dim=2)
 
         out, _ = self.lstm(embedding)
+        out = self.dropout(out)
 
         out = self.linear1(out)
         out = self.linear2(out)
