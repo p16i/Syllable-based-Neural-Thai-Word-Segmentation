@@ -97,8 +97,6 @@ Pair (i=%d)
     return pd.DataFrame(results)
 
 
-
-import difflib 
 def preprocessing(txt: str, remove_space: bool = True) -> str:
     """
     Clean up text before performing evaluation.
