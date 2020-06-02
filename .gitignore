@@ -111,5 +111,5 @@ local-artifacts
 data
 notebooks/figures/*
 notebooks/.DS_Store*
-writing
 artifact-server
+./writing
