@@ -57,7 +57,7 @@ class Model(BaseModel):
 
         out = self.dropout(out)
 
-        out = self.linear1(out)
+        out = F.relu(self.linear1(out))
         out = self.linear2(out)
 
         return out
