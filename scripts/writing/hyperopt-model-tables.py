@@ -10,11 +10,12 @@ table = r"""
 \begin{table*}
 
 \centering
-\begin{tabular}{cc}
+\begin{tabular}{lc}
 \toprule
-\textbf{Best validation word-level F1}  & %(best_val_f1).4f \\
-\textbf{Best model's number of trainable parameters}  & %(best_num_params)s \\
 \textbf{Average training duration}  & %(avg_training).0f minutes \\
+\textbf{Average validation word-level $F_1$}  & %(avg_val_f1)2.2f$\pm$%(std_val_f1).2f\%% \\
+\textbf{Best validation word-level $F_1$}  & %(best_val_f1)2.2f\%% \\
+\textbf{Best model's number of trainable parameters}  & %(best_num_params)s \\
 \bottomrule	
 \end{tabular}
 
@@ -42,6 +43,7 @@ dropout & \textit{uniform(0, 0.5)} & %(do).4f \\
     "BiLSTM": r"""
 LSTM cells & \textit{uniform-interger(64, 256)} & %(cells)d \\
 linear layer &  \textit{uniform-interger(16, 48)} & %(l1)d \\
+dropout & \textit{uniform(0, 0.5)} & %(do).4f \\
 """,
     "BiLSTM-XL": r"""(need change)\\"""
 }
@@ -74,9 +76,11 @@ if __name__ == "__main__":
             fam_param = fam_param_tmp % arch_config
 
             tt = table % dict(
-                best_val_f1=max_val_f1,
+                best_val_f1=max_val_f1*100,
                 best_num_params="{:,}".format(best_model["num_trainable_params"]),
                 avg_training=(df["training_took"] / 60).mean(),
+                avg_val_f1=(df["best-val:word_level:f1"]).mean() * 100,
+                std_val_f1=(df["best-val:word_level:f1"]).std() * 100,
                 name=row["name"],
                 lr=best_model["lr"],
                 weight_decay=best_model["weight_decay"],
