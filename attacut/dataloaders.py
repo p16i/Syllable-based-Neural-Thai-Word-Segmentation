@@ -147,6 +147,11 @@ class CharacterSeqDataset(SequenceDataset):
 
         for i, s in enumerate(batch):
             b_feature = s[0][0]
+
+            # make sure that we have seq dimension, e.g. when length is one
+            if len(b_feature.shape) == 1:
+                b_feature = b_feature.unsqueeze(1)
+
             total_features = b_feature.shape[1]
             features[i, :, :total_features] = b_feature
             labels[i, :total_features] = s[1]
