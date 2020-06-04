@@ -1,47 +1,114 @@
-- 
-    name: ID-CNN(CH)-BI
-    path: ./stats/seq_ch_conv_3lv.yaml-2020-05-15--13-36.30.csv
-    confirm: 1
-
-- 
-    name: BiLSTM(CH)
-    path: ./stats/seq_ch_lstm_bi.yaml-2020-05-22--22-42.30.csv
+-
+    name: BiLSTM(CH)-BI
+    path: ./stats/seq_ch_lstm_bi.yaml-2020-06-04--09-17.20.csv
     confirm: 1
 -
-    name: BiLSTM(CH+SY)
-    path: ./stats/seq_sy_ch_lstm_bi.yaml-2020-05-22--22-42.30.csv
+    name: BiLSTM(CH+SY)-BI
+    path: ./stats/seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20.csv
     confirm: 1
 -
-    name: BiLSTM(CH+SY)-SchemeA
-    path: ./stats/seq_sy_ch_lstm_scheme_a.yaml-2020-05-24--17-52.30.csv
+    name: BiLSTM(SY)-BI
+    path: ./stats/seq_sy_lstm_bi.yaml-2020-06-03--23-35.20.csv
     confirm: 1
-
--
-    name: BiLSTM(CH+SY)-SchemeB
-    path: ./stats/seq_sy_ch_lstm_scheme_b.yaml-2020-05-24--17-52.30.csv
-    confirm: 1
-
--
-    name: BiLSTM-CRF(CH+SY)
-    path: ./stats/seq_sy_ch_lstm_bi_crf.yaml-2020-05-23--13-12.10.csv
-    confirm: 1
-
-- 
-    name: BiLSTM(SY)
-    path: ./stats/seq_sy_lstm_bi.yaml-2020-05-22--22-42.30.csv
-    confirm: 1
-
 -
     name: BiLSTM(SY)-SchemeA
-    path: ./stats/seq_sy_lstm_scheme_a.yaml-2020-05-27--17-17.30.csv
+    path: ./stats/seq_sy_lstm_scheme_a.yaml-2020-06-03--23-35.20.csv
     confirm: 1
-
--
-    name: BiLSTM-CRF(SY)-SchemeA
-    path: ./stats/seq_sy_lstm_crf_scheme_a.yaml-2020-05-27--23-34.10.csv
-    confirm: 1
-
 -
     name: BiLSTM(SY)-SchemeB
-    path: ./stats/seq_sy_lstm_scheme_b.yaml-2020-05-27--17-17.30.csv
+    path: ./stats/seq_sy_lstm_scheme_b.yaml-2020-06-03--23-35.20.csv
     confirm: 1
+-
+    name: BiLSTM-CRF(SY)-BI
+    path: ./stats/seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20.csv
+    confirm: 1
+-
+    name: BiLSTM-CRF(SY)-SchemeA
+    path: ./stats/seq_sy_lstm_crf_scheme_a.yaml-2020-06-03--23-34.20.csv
+    confirm: 1
+-
+    name: BiLSTM-CRF(SY)-SchemeB
+    path: ./stats/seq_sy_lstm_crf_scheme_b.yaml-2020-06-03--23-35.20.csv
+    confirm: 1
+######
+-
+    name: ID-CNN(CH)-BI
+    path: ./stats/seq_ch_conv_3lv.yaml-2020-06-03--12-11.20.csv
+    confirm: 1
+-
+    name: ID-CNN(CH+SY)-BI
+    path: ./stats/seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20.csv
+    confirm: 1
+-
+    name: ID-CNN(SY)-BI
+    path: ./stats/seq_sy_conv_3lv.yaml-2020-06-02--08-19.20.csv
+    confirm: 1
+-
+    name: ID-CNN(SY)-SchemeA
+    path: ./stats/seq_sy_conv_3lv_scheme_a.yaml-2020-06-02--10-49.20.csv
+    confirm: 1
+-
+    name: ID-CNN(SY)-SchemeB
+    path: ./stats/seq_sy_conv_3lv_scheme_b.yaml-2020-06-02--10-49.20.csv
+    confirm: 1
+
+-
+    name: ID-CNN-CRF(SY)-BI
+    path: ./stats/seq_sy_conv_3lv_crf_bi.yaml-2020-06-01--11-40.20.csv
+    confirm: 1
+-
+    name: ID-CNN-CRF(SY)-SchemeA
+    path: ./stats/seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20.csv
+    confirm: 1
+-
+    name: ID-CNN-CRF(SY)-SchemeB
+    path: ./stats/seq_sy_conv_3lv_crf_scheme_b.yaml-2020-06-01--11-39.20.csv
+    confirm: 1
+
+# - 
+#     name: ID-CNN(CH)-BI
+#     path: ./stats/seq_ch_conv_3lv.yaml-2020-05-15--13-36.30.csv
+#     confirm: 1
+
+# - 
+#     name: BiLSTM(CH)
+#     path: ./stats/seq_ch_lstm_bi.yaml-2020-05-22--22-42.30.csv
+#     confirm: 1
+# -
+#     name: BiLSTM(CH+SY)
+#     path: ./stats/seq_sy_ch_lstm_bi.yaml-2020-05-22--22-42.30.csv
+#     confirm: 1
+# -
+#     name: BiLSTM(CH+SY)-SchemeA
+#     path: ./stats/seq_sy_ch_lstm_scheme_a.yaml-2020-05-24--17-52.30.csv
+#     confirm: 1
+
+# -
+#     name: BiLSTM(CH+SY)-SchemeB
+#     path: ./stats/seq_sy_ch_lstm_scheme_b.yaml-2020-05-24--17-52.30.csv
+#     confirm: 1
+
+# -
+#     name: BiLSTM-CRF(CH+SY)
+#     path: ./stats/seq_sy_ch_lstm_bi_crf.yaml-2020-05-23--13-12.10.csv
+#     confirm: 1
+
+# - 
+#     name: BiLSTM(SY)
+#     path: ./stats/seq_sy_lstm_bi.yaml-2020-05-22--22-42.30.csv
+#     confirm: 1
+
+# -
+#     name: BiLSTM(SY)-SchemeA
+#     path: ./stats/seq_sy_lstm_scheme_a.yaml-2020-05-27--17-17.30.csv
+#     confirm: 1
+
+# -
+#     name: BiLSTM-CRF(SY)-SchemeA
+#     path: ./stats/seq_sy_lstm_crf_scheme_a.yaml-2020-05-27--23-34.10.csv
+#     confirm: 1
+
+# -
+#     name: BiLSTM(SY)-SchemeB
+#     path: ./stats/seq_sy_lstm_scheme_b.yaml-2020-05-27--17-17.30.csv
+#     confirm: 1
