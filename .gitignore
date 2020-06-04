@@ -112,5 +112,4 @@ data
 notebooks/figures/*
 notebooks/.DS_Store*
 artifact-server
-writing
 notebooks/stats
