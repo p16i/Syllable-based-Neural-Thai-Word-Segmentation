@@ -20,16 +20,17 @@ Options:
 """
 
 from docopt import docopt
-from attacut import command, __version__
+from attacut import command, __version__, utils
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version=f"AttaCut: version {__version__}")
 
-    command.main(
-        arguments["<src>"],
-        arguments["--model"],
-        int(arguments["--num-cores"]),
-        int(arguments["--batch-size"]),
-        dest=arguments["--dest"],
-        device="cuda" if arguments["--gpu"] else "cpu"
-    )
+    with utils.Timer("segmentation"):
+      command.main(
+          arguments["<src>"],
+          arguments["--model"],
+          int(arguments["--num-cores"]),
+          int(arguments["--batch-size"]),
+          dest=arguments["--dest"],
+          device="cuda" if arguments["--gpu"] else "cpu"
+      )

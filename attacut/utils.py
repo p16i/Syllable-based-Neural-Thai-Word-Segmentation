@@ -34,7 +34,7 @@ class Timer:
     def __exit__(self, type, value, traceback):
         self.stop = time.time()
         diff = self.stop - self.start
-        log.info("Finished block: %s with %d seconds" % (self.name, diff))
+        print("Finished block: %s with %d seconds" % (self.name, diff))
 
 
 def maybe(cond: bool, func: Callable[[], None], desc: str, verbose=0):
