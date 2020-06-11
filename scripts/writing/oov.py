@@ -9,13 +9,21 @@ TEST_SET = "./data/best-test/label.txt"
 FILES = {
     "PyThaiNLP": "../docker-thai-tokenizers/data/best-test/input_tokenised-pythainlp-newmm.txt",
     "DeepCut": "../docker-thai-tokenizers/data/best-test/input_tokenised-deepcut-deepcut.txt",
-    "BiLSTM-CRF(SY)-BI": "./best-models/seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20-run-12/best-test.txt",
+    "BiLSTM-CRF(SY)-BI": "./best-models/seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20-run-9/best-test.txt",
     "ID-CNN-CRF(SY)-SchemeA": "./best-models/seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20-run-1/best-test.txt",
+    "BiLSTM(CH)-BI": "./best-models/seq_ch_lstm_bi.yaml-2020-06-04--09-17.20-run-13/best-test.txt",
+    "ID-CHH(CH)-BI": "./best-models/seq_ch_conv_3lv.yaml-2020-06-03--12-11.20-run-8/best-test.txt",
+    "BiLSTM(CH+SY)-BI": "./best-models/seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20-run-12/best-test.txt",
+    "ID-CNN(CH+SY)-BI": "./best-models/seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20-run-18/best-test.txt",
 }
 
 KEYS = [
     "PyThaiNLP",
     "DeepCut",
+    "BiLSTM(CH)-BI",
+    "ID-CHH(CH)-BI",
+    "BiLSTM(CH+SY)-BI",
+    "ID-CNN(CH+SY)-BI",
     "BiLSTM-CRF(SY)-BI",
     "ID-CNN-CRF(SY)-SchemeA"
 ]
