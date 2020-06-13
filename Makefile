@@ -1,15 +1,23 @@
+
 export PYTHONPATH=.
 
-tables: ./writing/tables/hyperopt-results-bilstm.tex ./writing/tables/hyperopt-results-ID-CNN.tex ./writing/tables/hyperopt-model-tables.tex
+.PHONY: main-table
 
-./writing/tables/hyperopt-results-bilstm.tex: ./hyperopt-results.yml
-	PYTHONPATH=$(PYTHONPATH) python ./scripts/writing/hyperopt-results-table.py BiLSTM
+ARCHS=BiLSTM BiLSTM-CRF ID-CNN ID-CNN-CRF
 
-./writing/tables/hyperopt-results-ID-CNN.tex: ./hyperopt-results.yml
-	PYTHONPATH=$(PYTHONPATH) python ./scripts/writing/hyperopt-results-table.py ID-CNN
 
-./writing/tables/hyperopt-model-tables.tex: ./hyperopt-results.yml
-	PYTHONPATH=$(PYTHONPATH) python ./scripts/writing/hyperopt-model-tables.py
+all: main-table appendix-table syllable-table
+
+main-table: $(ARCHS)
+
+$(ARCHS): ./hyperopt-results.yml
+	echo $@ && python ./scripts/writing/hyperopt-results-table.py $@
+
+appendix-table: ./hyperopt-results.yml
+	python ./scripts/writing/hyperopt-model-tables.py
+
+syllable-table: ./writing/syllable-segmentation-eval-results
+	python ./scripts/writing/syllable-table.py
 
 clean:
 	rm -f ./writing/tables/*

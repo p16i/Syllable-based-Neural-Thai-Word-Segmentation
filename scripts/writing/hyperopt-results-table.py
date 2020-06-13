@@ -7,7 +7,7 @@ from attacut import utils
 OUTPUT = "./writing/tables/hyperopt-results-{algo}.tex"
 
 ROW_TEMPLATE = r"""
-{algo} & {seq_level} & {ch_feat} & {sy_feat} & {output_tag} & {crf} & {test_score} & {avg_score} \\
+{algo} & {seq_level} & {ch_feat} & {sy_feat} & {output_tag} & {test_score} & {avg_score} \\
 """
 
 highlight = [
@@ -24,9 +24,11 @@ results = {
         "(SY)-BI",
         "(SY)-SchemeA",
         "(SY)-SchemeB",
-        "-CRF(SY)-BI",
-        "-CRF(SY)-SchemeA",
-        "-CRF(SY)-SchemeB",
+    ],
+    "BiLSTM-CRF": [
+        "(SY)-BI",
+        "(SY)-SchemeA",
+        "(SY)-SchemeB",
     ],
     "ID-CNN": [
         "(CH)-BI",
@@ -34,9 +36,11 @@ results = {
         "(SY)-BI",
         "(SY)-SchemeA",
         "(SY)-SchemeB",
-        "-CRF(SY)-BI",
-        "-CRF(SY)-SchemeA",
-        "-CRF(SY)-SchemeB",
+    ],
+    "ID-CNN-CRF": [
+        "(SY)-BI",
+        "(SY)-SchemeA",
+        "(SY)-SchemeB",
     ]
 }
 
@@ -80,7 +84,8 @@ if __name__ == "__main__":
 
             score = best_model["best-val:word_level:f1"]
 
-            print("Best Score: ", best_model["best-test:word_level:f1"])
+            print("Best Score (Test): ", best_model["best-test:word_level:f1"])
+            print("Best Score (Val): ", best_model["best-val:word_level:f1"])
 
             score_txt = f"{score*100:.2f}\%"
 
@@ -95,7 +100,6 @@ if __name__ == "__main__":
                 ch_feat=marker(key, lambda x: "(CH" in x),
                 sy_feat=marker(key, lambda x: "SY)" in x),
                 output_tag=key.split("-")[-1],
-                crf=marker(key, lambda x: "CRF" in x),
                 test_score=score_txt,
                 avg_score="%2.2f $\\pm$ % 2.2f" % (test_metric.mean(), test_metric.std())
             )

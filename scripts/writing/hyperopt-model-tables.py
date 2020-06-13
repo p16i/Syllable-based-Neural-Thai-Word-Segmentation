@@ -22,7 +22,7 @@ table = r"""
 \begin{tabular}{rccc}
 \toprule
 \textbf{Hyperparameter} & \textbf{Search Space} & \textbf{Best Assignment} \\
-learning rate &  \textit{loguniform(1e-6, 1e-3)}&  %(lr).2e \\
+learning rate &  \textit{loguniform(1e-4, 1e-3)}&  %(lr).2e \\
 weight decay & \textit{loguniform(1e-6, 1e-3)} &  %(weight_decay).2e \\
 %(family_params)s
 \bottomrule
@@ -35,17 +35,15 @@ weight decay & \textit{loguniform(1e-6, 1e-3)} &  %(weight_decay).2e \\
 
 family_specific_param = {
     "ID-CNN": r"""
-convolution filters & \textit{uniform-interger(64, 256)} & %(conv)d \\
+convolution filters & \textit{uniform-interger(128, 256)} & %(conv)d \\
 linear layer &  \textit{uniform-interger(16, 48)} & %(l1)d \\
 dropout & \textit{uniform(0, 0.5)} & %(do).4f \\
 """,
-    "ID-CNN-XL": r"""(need change)\\""",
     "BiLSTM": r"""
-LSTM cells & \textit{uniform-interger(64, 256)} & %(cells)d \\
+LSTM cells & \textit{uniform-interger(128, 512)} & %(cells)d \\
 linear layer &  \textit{uniform-interger(16, 48)} & %(l1)d \\
 dropout & \textit{uniform(0, 0.5)} & %(do).4f \\
 """,
-    "BiLSTM-XL": r"""(need change)\\"""
 }
 
 if __name__ == "__main__":
