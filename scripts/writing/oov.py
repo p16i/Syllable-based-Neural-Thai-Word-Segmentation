@@ -1,32 +1,83 @@
+import sys
 import re
 import numpy as np
 from pythainlp import util
+
 from attacut import benchmark
 
 TRAINING_SET = "./data/best-raw/training.txt"
-TEST_SET = "./data/best-test/label.txt"
 
-FILES = {
-    "PyThaiNLP": "../docker-thai-tokenizers/data/best-test/input_tokenised-pythainlp-newmm.txt",
-    "DeepCut": "../docker-thai-tokenizers/data/best-test/input_tokenised-deepcut-deepcut.txt",
-    "BiLSTM-CRF(SY)-BI": "./best-models/seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20-run-9/best-test.txt",
-    "ID-CNN-CRF(SY)-SchemeA": "./best-models/seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20-run-1/best-test.txt",
-    "BiLSTM(CH)-BI": "./best-models/seq_ch_lstm_bi.yaml-2020-06-04--09-17.20-run-13/best-test.txt",
-    "ID-CHH(CH)-BI": "./best-models/seq_ch_conv_3lv.yaml-2020-06-03--12-11.20-run-8/best-test.txt",
-    "BiLSTM(CH+SY)-BI": "./best-models/seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20-run-12/best-test.txt",
-    "ID-CNN(CH+SY)-BI": "./best-models/seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20-run-18/best-test.txt",
+TEST_SET = {
+    "best-test": "./data/best-test/label.txt",
+    "wisesight-1000": "../docker-thai-tokenizers/data/wisesight-1000/label.txt",
+    "tnhc": "../docker-thai-tokenizers/data/tnhc/tnhc.label",
 }
 
-KEYS = [
-    "PyThaiNLP",
-    "DeepCut",
-    "BiLSTM(CH)-BI",
-    "ID-CHH(CH)-BI",
-    "BiLSTM(CH+SY)-BI",
-    "ID-CNN(CH+SY)-BI",
-    "BiLSTM-CRF(SY)-BI",
-    "ID-CNN-CRF(SY)-SchemeA"
-]
+FILES = {
+    "best-test": {
+        "PyThaiNLP": "../docker-thai-tokenizers/data/best-test/input_tokenised-pythainlp-newmm.txt",
+        "DeepCut": "../docker-thai-tokenizers/data/best-test/input_tokenised-deepcut-deepcut.txt",
+        "BiLSTM-CRF(SY)-BI": "./best-models/seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20-run-9/best-test.txt",
+        "ID-CNN-CRF(SY)-SchemeA": "./best-models/seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20-run-1/best-test.txt",
+        "BiLSTM(CH)-BI": "./best-models/seq_ch_lstm_bi.yaml-2020-06-04--09-17.20-run-13/best-test.txt",
+        "ID-CHH(CH)-BI": "./best-models/seq_ch_conv_3lv.yaml-2020-06-03--12-11.20-run-8/best-test.txt",
+        "BiLSTM(CH+SY)-BI": "./best-models/seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20-run-12/best-test.txt",
+        "ID-CNN(CH+SY)-BI": "./best-models/seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20-run-18/best-test.txt",
+    },
+    "wisesight-1000": {
+        "PyThaiNLP": "../docker-thai-tokenizers/data/wisesight-1000/input_tokenised-pythainlp-newmm.txt",
+        "DeepCut": "../docker-thai-tokenizers/data/wisesight-1000/input_tokenised-deepcut-deepcut.txt",
+        "BiLSTM-CRF(SY)-BI": "../docker-thai-tokenizers/data/wisesight-1000/input-tokenized-by-seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20-run-9.txt",
+        "ID-CNN-CRF(SY)-SchemeA": "../docker-thai-tokenizers/data/wisesight-1000/input-tokenized-by-seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20-run-1.txt",
+        "BiLSTM(CH)-BI": "../docker-thai-tokenizers/data/wisesight-1000/input-tokenized-by-seq_ch_lstm_bi.yaml-2020-06-04--09-17.20-run-13.txt",
+        "ID-CHH(CH)-BI": "../docker-thai-tokenizers/data/wisesight-1000/input-tokenized-by-seq_ch_conv_3lv.yaml-2020-06-03--12-11.20-run-8.txt",
+        "BiLSTM(CH+SY)-BI": "../docker-thai-tokenizers/data/wisesight-1000/input-tokenized-by-seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20-run-12.txt",
+        "ID-CNN(CH+SY)-BI": "../docker-thai-tokenizers/data/wisesight-1000/input-tokenized-by-seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20-run-18.txt",
+    },
+    "tnhc": {
+        "PyThaiNLP": "../docker-thai-tokenizers/data/tnhc/input_tokenised-pythainlp-newmm.txt",
+        "DeepCut": "../docker-thai-tokenizers/data/tnhc/input_tokenised-deepcut-deepcut.txt",
+        "BiLSTM-CRF(SY)-BI": "../docker-thai-tokenizers/data/tnhc/input-tokenized-by-seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20-run-9.txt",
+        "ID-CNN-CRF(SY)-SchemeA": "../docker-thai-tokenizers/data/tnhc/input-tokenized-by-seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20-run-1.txt",
+        "BiLSTM(CH)-BI": "../docker-thai-tokenizers/data/tnhc/input-tokenized-by-seq_ch_lstm_bi.yaml-2020-06-04--09-17.20-run-13.txt",
+        "ID-CHH(CH)-BI": "../docker-thai-tokenizers/data/tnhc/input-tokenized-by-seq_ch_conv_3lv.yaml-2020-06-03--12-11.20-run-8.txt",
+        "BiLSTM(CH+SY)-BI": "../docker-thai-tokenizers/data/tnhc/input-tokenized-by-seq_sy_ch_lstm_bi.yaml-2020-06-03--20-26.20-run-12.txt",
+        "ID-CNN(CH+SY)-BI": "../docker-thai-tokenizers/data/tnhc/input-tokenized-by-seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20-run-18.txt",
+    }
+}
+
+KEYS = {
+    "best-test": [
+        "PyThaiNLP",
+        "DeepCut",
+        "BiLSTM(CH)-BI",
+        "BiLSTM(CH+SY)-BI",
+        "BiLSTM-CRF(SY)-BI",
+        "ID-CHH(CH)-BI",
+        "ID-CNN(CH+SY)-BI",
+        "ID-CNN-CRF(SY)-SchemeA",
+    ],
+    "wisesight-1000": [
+        "PyThaiNLP",
+        "DeepCut",
+        "BiLSTM(CH)-BI",
+        "BiLSTM(CH+SY)-BI",
+        "BiLSTM-CRF(SY)-BI",
+        "ID-CHH(CH)-BI",
+        "ID-CNN(CH+SY)-BI",
+        "ID-CNN-CRF(SY)-SchemeA",
+    ],
+    "tnhc": [
+        "PyThaiNLP",
+        "DeepCut",
+        "BiLSTM(CH)-BI",
+        "BiLSTM(CH+SY)-BI",
+        "BiLSTM-CRF(SY)-BI",
+        "ID-CHH(CH)-BI",
+        "ID-CNN(CH+SY)-BI",
+        "ID-CNN-CRF(SY)-SchemeA",
+    ],
+}
 
 def extract_vocabs(file):
     words = dict()
@@ -49,8 +100,14 @@ def extract_vocabs(file):
 
 if __name__ == "__main__":
 
+    dataset = sys.argv[1]
+    print(f"OOV for {dataset}")
+
     train_vocabs = extract_vocabs(TRAINING_SET)
-    test_vocabs = extract_vocabs(TEST_SET)
+
+
+    test_set = TEST_SET[dataset]
+    test_vocabs = extract_vocabs(test_set)
 
     oov = set(test_vocabs.keys()).difference(train_vocabs.keys())
 
@@ -63,12 +120,13 @@ if __name__ == "__main__":
 
     print(f"Test \ Train: {count_oov} oovs (freq: {total_oov_freq}).")     
 
-    for k in KEYS:
-        print("-------")
-        v = FILES[k]
+    for k in KEYS[dataset]:
+        print(f"-- {k} --")
+        v = FILES[dataset][k]
         print(k, v)
         local_oov = dict()
-        with open(TEST_SET, "r") as ft, open(v, "r") as ff:
+        with open(test_set, "r") as ft, open(v, "r") as ff:
+
             for label, res in zip(ft, ff):
                 label = benchmark.preprocessing(label.strip())
                 res = benchmark.preprocessing(res.strip())
@@ -79,7 +137,6 @@ if __name__ == "__main__":
 
                 wb_label = benchmark._find_word_boudaries(bin_label)
                 wb_res = benchmark._find_word_boudaries(bin_res)
-
 
                 # we switch reference here because we want to see whether words in label are tokenized correctly.
                 indicators = benchmark._find_words_correctly_tokenised(wb_res, wb_label)
