@@ -1,17 +1,25 @@
-# ..REponame
+# Syllable based Neural Thai Word-Segmentation
 
-## Data Preparation
-- 
+By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://ponraw.ee), [Jin Cheevaprawatdomrong](tbd), and [Attapol  T. Rutherford](https://attapol.github.io)
 
-## Running
+**Links**: [[Paper 📑]](paper) [[Presentation 📹]](presentation_en) [[การนำเสนอ 📹]](tbd) [[Citation  ⚓️️]](#Citation)
 
-
-## Hyperparameter Optimization
-
-## Visualizations
+**Related Works**: AttaCut (early version of this work), SSG, DeepCut, Docker for Evaluation
 
 
-pip install torch==1.4.0+cu100 torchvision==0.5.0+cu100 -f https://download.pytorch.org/whl/torch_stable.html
+## Research Highlights
+Some Results
 
+## Evaluation
+...
 
+Methods ..
 
+## Citation
+```
+something
+```
+
+[paper]: tbd
+[presentation_en]: tbd
+[presentation_th]: th
