@@ -10,7 +10,7 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 - [DeepCut](https://github.com/rkcosmos/deepcut) via [Docker for Thai tokenizers](https://github.com/PyThaiNLP/docker-thai-tokenizers)
 
 
-## Research Highlights
+## Highlights
 Some Results
 
 ## Evaluation
@@ -19,7 +19,7 @@ Some Results
 Methods ..
 
 ## Citation
-At the moment, we am waiting for the proceeding from COLING2020 to be available. Please stay tuned!.
+At the moment, we am waiting for the proceeding of COLING2020 to be available. Please stay tuned!.
 ```
 TBD
 ```
