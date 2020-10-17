@@ -4,7 +4,10 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 
 **Links**: [[Paper 📑]](paper) [[Presentation 📹]](presentation_en) [[การนำเสนอ 📹]](tbd) [[Citation  ⚓️️]](#Citation)
 
-**Related Works**: AttaCut (early version of this work), SSG, DeepCut, Docker for Evaluation
+**Related Works**:
+- [AttaCut (early version of this work)](https://pythainlp.github.io/attacut/)
+- [CRF syllable segmenter for Thai (SSG)](https://github.com/ponrawee/ssg)
+- [DeepCut](https://github.com/rkcosmos/deepcut) via [Docker for Thai tokenizers](https://github.com/PyThaiNLP/docker-thai-tokenizers)
 
 
 ## Research Highlights
@@ -16,8 +19,9 @@ Some Results
 Methods ..
 
 ## Citation
+At the moment, we am waiting for the proceeding from COLING2020 to be available. Please stay tuned!.
 ```
-something
+TBD
 ```
 
 [paper]: tbd
