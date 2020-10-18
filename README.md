@@ -9,14 +9,34 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 - [CRF syllable segmenter for Thai (SSG)](https://github.com/ponrawee/ssg): our syllable segmenter.
 - [DeepCut](https://github.com/rkcosmos/deepcut) via [Docker for Thai tokenizers](https://github.com/PyThaiNLP/docker-thai-tokenizers)
 
+🚧 for running the code, please consult [DEV.md](DEV.md).
 
 ## Highlights
-Some Results
+
+### Syllable and Word Segmentation Performance
+<div align="center">
+    <img src="https://i.imgur.com/oKj7w5a.png" width="300px"/>
+</div>
+
+<div align="center">
+    <img src="https://i.imgur.com/LiDvDPg.png" width="300px"/>
+</div>
+
+### Expected Validation Performance
+
+<div align="center">
+    <img src="https://i.imgur.com/3CbEGUW.png" width="300px"/>
+</div>
+
+### Explaining Word Segmentation
+
+<div align="center">
+    <img src="https://i.imgur.com/eSxZfy4.png" width="400px"/>
+</div>
+
 
 <details>
     <summary>Statistic Files</summary>
-
-</details>
 
 | Model  | Statistics File  |  
 |---|---|
@@ -36,6 +56,9 @@ Some Results
 | ID-CNN-CRF(SY)-BI  | [seq_sy_conv_3lv_crf_bi.yaml-2020-06-01--11-40.20.csv](stats/seq_sy_conv_3lv_crf_bi.yaml-2020-06-01--11-40.20.csv)  |
 | ID-CNN-CRF(SY)-SchemeA  | [seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20.csv](./stats/seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20.csv)  |
 | ID-CNN-CRF(SY)-SchemeB  | [seq_sy_conv_3lv_crf_scheme_b.yaml-2020-06-01--11-39.20.csv](./stats/seq_sy_conv_3lv_crf_scheme_b.yaml-2020-06-01--11-39.20.csv)  |
+
+</details>
+
 
 ## Citation
 At the moment, we am waiting for the proceeding of COLING2020 to be available. Please stay tuned!.
