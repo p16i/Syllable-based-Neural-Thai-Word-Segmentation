@@ -15,23 +15,23 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 
 ### Syllable and Word Segmentation Performance
 <div align="center">
-    <img src="https://i.imgur.com/oKj7w5a.png" width="300px"/>
+    <img src="https://i.imgur.com/oKj7w5a.png"/>
 </div>
 
 <div align="center">
-    <img src="https://i.imgur.com/LiDvDPg.png" width="300px"/>
+    <img src="https://i.imgur.com/LiDvDPg.png"/>
 </div>
 
 ### Expected Validation Performance
 
 <div align="center">
-    <img src="https://i.imgur.com/3CbEGUW.png" width="300px"/>
+    <img src="https://i.imgur.com/3CbEGUW.png"/>
 </div>
 
 ### Explaining Word Segmentation
 
 <div align="center">
-    <img src="https://i.imgur.com/eSxZfy4.png" width="400px"/>
+    <img src="https://i.imgur.com/eSxZfy4.png"/>
 </div>
 
 
