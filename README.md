@@ -16,6 +16,8 @@ Some Results
 <details>
     <summary>Statistic Files</summary>
 
+</details>
+
 | Model  | Statistics File  |  
 |---|---|
 | BiLSTM(CH)-BI  |  [seq_ch_lstm_bi.yaml-2020-06-04--09-17.20.csv](./stats/seq_ch_lstm_bi.yaml-2020-06-04--09-17.20.csv)  |
@@ -26,8 +28,14 @@ Some Results
 | BiLSTM-CRF(SY)-BI  | [seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20.csv](./stats/seq_sy_lstm_bi_crf.yaml-2020-06-03--18-10.20.csv)  |
 | BiLSTM-CRF(SY)-SchemeA  | [seq_sy_lstm_crf_scheme_a.yaml-2020-06-03--23-34.20.csv](./stats/seq_sy_lstm_crf_scheme_a.yaml-2020-06-03--23-34.20.csv)  |
 | BiLSTM-CRF(SY)-SchemeB  | [seq_sy_lstm_crf_scheme_b.yaml-2020-06-03--23-35.20.csv](./stats/seq_sy_lstm_crf_scheme_b.yaml-2020-06-03--23-35.20.csv)  |
-|   |   |
-</details>
+| ID-CNN(CH)-BI  | [seq_ch_conv_3lv.yaml-2020-06-03--12-11.20.csv](./stats/seq_ch_conv_3lv.yaml-2020-06-03--12-11.20.csv)  |
+| ID-CNN(CH-SY)-BI  | [seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20.csv](./stats/seq_sy_ch_conv_3lv.yaml-2020-06-02--23-23.20.csv)  |
+| ID-CNN(SY)-BI  | [seq_sy_conv_3lv.yaml-2020-06-02--08-19.20.csv](./stats/seq_sy_conv_3lv.yaml-2020-06-02--08-19.20.csv)  |
+| ID-CNN(SY)-SchemeA  | [seq_sy_conv_3lv_scheme_a.yaml-2020-06-02--10-49.20.csv](./stats/seq_sy_conv_3lv_scheme_a.yaml-2020-06-02--10-49.20.csv)  |
+| ID-CNN(SY)-SchemeB  | [seq_sy_conv_3lv_scheme_b.yaml-2020-06-02--10-49.20.csv](./stats/seq_sy_conv_3lv_scheme_b.yaml-2020-06-02--10-49.20.csv)  |
+| ID-CNN-CRF(SY)-BI  | [seq_sy_conv_3lv_crf_bi.yaml-2020-06-01--11-40.20.csv](stats/seq_sy_conv_3lv_crf_bi.yaml-2020-06-01--11-40.20.csv)  |
+| ID-CNN-CRF(SY)-SchemeA  | [seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20.csv](./stats/seq_sy_conv_3lv_crf_scheme_a.yaml-2020-06-01--11-39.20.csv)  |
+| ID-CNN-CRF(SY)-SchemeB  | [seq_sy_conv_3lv_crf_scheme_b.yaml-2020-06-01--11-39.20.csv](./stats/seq_sy_conv_3lv_crf_scheme_b.yaml-2020-06-01--11-39.20.csv)  |
 
 ## Citation
 At the moment, we am waiting for the proceeding of COLING2020 to be available. Please stay tuned!.
