@@ -8,6 +8,7 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 - [AttaCut](https://pythainlp.github.io/attacut/): this is the early version of this work.
 - [CRF syllable segmenter for Thai (SSG)](https://github.com/ponrawee/ssg): our syllable segmenter.
 - [DeepCut](https://github.com/rkcosmos/deepcut) via [Docker for Thai tokenizers](https://github.com/PyThaiNLP/docker-thai-tokenizers)
+- [Segmentation Speed Benchmark](https://github.com/heytitle/segmentation-speed-benchmark): our code for orchestrating AWS environment for segmentation speed benchmarking.
 
 🚧 for running the code, please consult [DEV.md](DEV.md).
 

@@ -69,6 +69,21 @@ python ./scripts/hyperopt.py --config=./scripts/hyper-configs/seq_ch_conv_3lv.ya
   2. preprocessing the `THNC` dataset.
 
 
+## Runtime Evaluation
+
+Please see https://github.com/heytitle/tokenization-speed-benchmark.
+
+
+## Notebooks
+
+| File | Description |
+|-----|-------|
+|viz-plot-hyperopt-results.ipynb | making plot for expected valiation performance, i.e. Figure 3 |
+|x_attacut_captum.ipynb | explaining model decision, i.e. Figure 4 and 5. for expected valiation performance, i.e. Figure 3 |
+|extract-syllable-dict.ipynb| as the name suggested |
+|convert-raw-to-syllable-and-label.ipynb | convert BEST-2010 raw dataset to the dataset with syllable labels 
+
+
 ## Backup Files
 
 All data files and models are backup 
