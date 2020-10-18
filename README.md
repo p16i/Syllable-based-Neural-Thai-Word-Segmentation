@@ -20,6 +20,10 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 </div>
 
 <div align="center">
+    <img src="https://i.imgur.com/Y7hV50I.png"/>
+</div>
+
+<div align="center">
     <img src="https://i.imgur.com/LiDvDPg.png"/>
 </div>
 
