@@ -68,9 +68,22 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 
 
 ## Citation
-At the moment, we am waiting for the proceeding of COLING2020 to be available. Please stay tuned!.
 ```
-TBD
+@inproceedings{chormai-etal-2020-syllable,
+    title = "Syllable-based Neural {T}hai Word Segmentation",
+    author = "Chormai, Pattarawat  and
+      Prasertsom, Ponrawee  and
+      Cheevaprawatdomrong, Jin  and
+      Rutherford, Attapol",
+    booktitle = "Proceedings of the 28th International Conference on Computational Linguistics",
+    month = dec,
+    year = "2020",
+    address = "Barcelona, Spain (Online)",
+    publisher = "International Committee on Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/2020.coling-main.407",
+    pages = "4619--4637",
+    abstract = "Word segmentation is a challenging pre-processing step for Thai Natural Language Processing due to the lack of explicit word boundaries.The previous systems rely on powerful neural network architecture alone and ignore linguistic substructures of Thai words. We utilize the linguistic observation that Thai strings can be segmented into syllables, which should narrow down the search space for the word boundaries and provide helpful features. Here, we propose a neural Thai Word Segmenter that uses syllable embeddings to capture linguistic constraints and uses dilated CNN filters to capture the environment of each character. Within this goal, we develop the first ML-based Thai orthographical syllable segmenter, which yields syllable embeddings to be used as features by the word segmenter. Our word segmentation system outperforms the previous state-of-the-art system in both speed and accuracy on both in-domain and out-domain datasets.",
+}
 ```
 
 [paper]: tbd
