@@ -2,7 +2,7 @@
 
 By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://ponraw.ee), [Jin Cheevaprawatdomrong](tbd), and [Attapol  T. Rutherford](https://attapol.github.io)
 
-**Links**: [[Paper 📑]][paper] [[Poster 🖼]][poster] [[~~Presentation 📹~~]][presentation_en] [[~~การนำเสนอ 📹~~]][tbd] [[Citation  ⚓️️]](#Citation)
+**Links**: [[Paper 📑]][paper] [[Poster 🖼]][poster] [[Citation  ⚓️️]](#Citation)
 
 **Related Works**:
 - [AttaCut](https://pythainlp.github.io/attacut/): this is the early version of this work.
