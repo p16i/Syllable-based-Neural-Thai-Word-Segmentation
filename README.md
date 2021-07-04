@@ -10,7 +10,7 @@ By [Pattarawat Chormai](https://pat.chormai.org), [Ponrawee Prasertsom](https://
 - [DeepCut](https://github.com/rkcosmos/deepcut) via [Docker for Thai tokenizers](https://github.com/PyThaiNLP/docker-thai-tokenizers)
 - [Segmentation Speed Benchmark](https://github.com/heytitle/segmentation-speed-benchmark): our code for orchestrating AWS environment for segmentation speed benchmarking.
 
-🚧 for running the code, please consult [DEV.md](DEV.md).
+🚧 for running the code, please consult [DEV.md](DEV.md). The code was developed using Python `3.8.7`.
 
 ## Highlights
 
