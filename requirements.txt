@@ -41,7 +41,7 @@ nbformat==5.0.6
 nltk==3.5
 notebook==6.1.5
 nptyping==1.0.1
-numpy==1.18.4
+numpy==1.22.0
 packaging==20.4
 pandas==1.0.3
 pandocfilters==1.4.2
